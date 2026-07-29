@@ -1,10 +1,10 @@
-package com.gjq.railwayticketingsystem;
+package com.gjq.train.member.config;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class RailwayTicketingSystemApplicationTests {
+class MemberApplicationTests {
 
     @Test
     void contextLoads() {

@@ -10,17 +10,21 @@
     <artifactId>member</artifactId>
 
     <dependencies>
+        <!-- 引入项目公共模块及其公共依赖 -->
         <dependency>
             <groupId>com.gjq</groupId>
             <artifactId>common</artifactId>
         </dependency>
 
+        <!-- 提供开发环境热部署能力 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
+
+        <!-- 提供 Spring Boot 测试支持 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>

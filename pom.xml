@@ -16,6 +16,8 @@
     <modules>
         <module>common</module>
         <module>member</module>
+        <module>gateway</module>
+        <module>generator</module>
     </modules>
 
     <properties>
@@ -23,10 +25,13 @@
         <spring-cloud.version>2022.0.0</spring-cloud.version>
         <fastjson.version>1.2.70</fastjson.version>
         <hutool.version>5.6.3</hutool.version>
+        <mybatis-plus.version>3.5.7</mybatis-plus.version>
+        <mybatis-plus-generator.version>3.5.5</mybatis-plus-generator.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <!-- 统一管理 Spring Cloud 依赖版本 -->
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
@@ -34,20 +39,47 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+            <!-- 统一管理 Common 模块版本 -->
             <dependency>
                 <groupId>com.gjq</groupId>
                 <artifactId>common</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
+            <!-- 统一管理 Fastjson 版本 -->
             <dependency>
                 <groupId>com.alibaba</groupId>
                 <artifactId>fastjson</artifactId>
                 <version>${fastjson.version}</version>
             </dependency>
+
+            <!-- 统一管理 Hutool 版本 -->
             <dependency>
                 <groupId>cn.hutool</groupId>
                 <artifactId>hutool-all</artifactId>
                 <version>${hutool.version}</version>
+            </dependency>
+
+            <!-- 统一管理 MyBatis-Plus Spring Boot 3 Starter 版本 -->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+
+            <!-- 统一管理 MyBatis-Plus 代码生成器版本 -->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-generator</artifactId>
+                <version>${mybatis-plus-generator.version}</version>
+            </dependency>
+
+            <!-- 为独立代码生成器提供 MyBatis-Plus 扩展类 -->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-extension</artifactId>
+                <version>${mybatis-plus-generator.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

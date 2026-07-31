@@ -1,5 +1,6 @@
 package com.gjq.train.member.controller;
 
+import com.gjq.train.common.resq.CommonResq;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -7,8 +8,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestController {
 
     @GetMapping("/hello")
-    public String hello() {
-        return "hello world";
+    public CommonResq<String> hello() {
+        return CommonResq.success("hello world");
     }
 
 }

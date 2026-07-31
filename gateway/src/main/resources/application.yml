@@ -3,6 +3,9 @@ spring:
   application:
     name: gateway
 
+  main:
+    banner-mode: off
+
   cloud:
     gateway:
       # 路由转发，将 /member/** 请求转发到 member 模块
@@ -20,3 +23,7 @@ server:
 logging:
   pattern:
     console: '%d{yyyy-MM-dd HH:mm:ss.SSS} [%X{LOG_ID}] %-5level %logger{36} - %msg%n'
+  level:
+    root: WARN
+    com.gjq.train: INFO
+    reactor.netty.http.server.AccessLog: INFO

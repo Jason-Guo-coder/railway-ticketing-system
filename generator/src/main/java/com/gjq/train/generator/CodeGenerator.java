@@ -41,13 +41,13 @@ public class CodeGenerator {
                 .globalConfig(builder -> builder
                         .author("郭建泉")
                         .disableOpenDir()
-                        .disableServiceInterface()
                         .outputDir(javaOutput.toString()))
                 .packageConfig(builder -> builder
                         .parent("com.gjq.train.member")
-                        .entity("domain")
+                        .entity("entity")
                         .mapper("mapper")
-                        .serviceImpl("service")
+                        .service("service")
+                        .serviceImpl("service.impl")
                         .pathInfo(Collections.singletonMap(
                                 OutputFile.xml,
                                 xmlOutput.toString()
@@ -56,6 +56,7 @@ public class CodeGenerator {
                         .addInclude(TABLES)
                         .entityBuilder()
                         .disableSerialVersionUID()
+                        .enableLombok()
                         .enableTableFieldAnnotation()
                         .enableFileOverride()
                         .mapperBuilder()
@@ -63,10 +64,10 @@ public class CodeGenerator {
                         .enableBaseColumnList()
                         .enableFileOverride()
                         .serviceBuilder()
-                        .formatServiceImplFileName("%sService")
+                        .formatServiceFileName("%sService")
+                        .formatServiceImplFileName("%sServiceImpl")
                         .enableFileOverride())
                 .templateConfig(builder -> builder.disable(
-                        TemplateType.SERVICE,
                         TemplateType.CONTROLLER
                 ))
                 .templateEngine(new FreemarkerTemplateEngine())

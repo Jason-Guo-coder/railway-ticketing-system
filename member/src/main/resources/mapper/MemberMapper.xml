@@ -3,7 +3,7 @@
 <mapper namespace="com.gjq.train.member.mapper.MemberMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.gjq.train.member.domain.Member">
+    <resultMap id="BaseResultMap" type="com.gjq.train.member.entity.Member">
         <id column="id" property="id" />
         <result column="mobile" property="mobile" />
     </resultMap>

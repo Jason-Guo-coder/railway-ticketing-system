@@ -1,8 +1,7 @@
 package com.gjq.train.common.aspect;
 
-import cn.hutool.core.util.RandomUtil;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.support.spring.PropertyPreFilters;
+import com.alibaba.fastjson.serializer.ValueFilter;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,7 +14,6 @@ import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -27,10 +25,6 @@ public class LogAspect {
 
     private static final Logger LOG =
             LoggerFactory.getLogger(LogAspect.class);
-
-    public LogAspect() {
-        System.out.println("LogAspect");
-    }
 
     /**
      * 定义一个切点。
@@ -50,11 +44,6 @@ public class LogAspect {
      */
     @Before("controllerPointcut()")
     public void doBefore(JoinPoint joinPoint) {
-        // 增加日志流水号
-        String logId = System.currentTimeMillis()
-                + RandomUtil.randomString(3);
-        MDC.put("LOG_ID", logId);
-
         // 获取当前请求
         ServletRequestAttributes attributes =
                 (ServletRequestAttributes)
@@ -93,13 +82,12 @@ public class LogAspect {
         try {
             Object result = proceedingJoinPoint.proceed();
             printResponseResult(result);
+            return result;
+        } finally {
             LOG.info(
                     "------------- 结束，耗时：{} ms -------------",
                     System.currentTimeMillis() - startTime
             );
-            return result;
-        } finally {
-            MDC.remove("LOG_ID");
         }
     }
 
@@ -117,11 +105,12 @@ public class LogAspect {
             }
             arguments[i] = args[i];
         }
-        PropertyPreFilters.MySimplePropertyPreFilter excludeFilter =
-                createExcludeFilter();
         LOG.info(
                 "请求参数: {}",
-                JSONObject.toJSONString(arguments, excludeFilter)
+                JSONObject.toJSONString(
+                        arguments,
+                        createSensitiveValueFilter()
+                )
         );
     }
 
@@ -129,11 +118,12 @@ public class LogAspect {
      * 打印 Controller 的返回结果。
      */
     private void printResponseResult(Object result) {
-        PropertyPreFilters.MySimplePropertyPreFilter excludeFilter =
-                createExcludeFilter();
         LOG.info(
                 "返回结果: {}",
-                JSONObject.toJSONString(result, excludeFilter)
+                JSONObject.toJSONString(
+                        result,
+                        createSensitiveValueFilter()
+                )
         );
     }
 
@@ -147,17 +137,24 @@ public class LogAspect {
     }
 
     /**
-     * 创建字段过滤器。
-     *
-     * 手机号等敏感字段不写入日志。
+     * 创建敏感字段脱敏过滤器。
      */
-    private PropertyPreFilters.MySimplePropertyPreFilter
-    createExcludeFilter() {
-        String[] excludeProperties = {"mobile"};
-        PropertyPreFilters filters = new PropertyPreFilters();
-        PropertyPreFilters.MySimplePropertyPreFilter excludeFilter =
-                filters.addFilter();
-        excludeFilter.addExcludes(excludeProperties);
-        return excludeFilter;
+    static ValueFilter createSensitiveValueFilter() {
+        return (object, name, value) ->
+                "mobile".equals(name) && value instanceof String
+                        ? maskMobile((String) value)
+                        : value;
+    }
+
+    /**
+     * 手机号保留前三位和后四位，中间使用星号替代。
+     */
+    static String maskMobile(String mobile) {
+        if (mobile == null || mobile.length() < 7) {
+            return "****";
+        }
+        return mobile.substring(0, 3)
+                + "****"
+                + mobile.substring(mobile.length() - 4);
     }
 }

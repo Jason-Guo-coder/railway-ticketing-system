@@ -1,6 +1,6 @@
 package com.gjq.train.member.mapper;
 
-import com.gjq.train.member.domain.Member;
+import com.gjq.train.member.entity.Member;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**

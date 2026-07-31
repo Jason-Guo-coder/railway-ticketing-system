@@ -1,19 +1,17 @@
 package com.gjq.train.member.service;
 
-import com.gjq.train.member.domain.Member;
-import com.gjq.train.member.mapper.MemberMapper;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.springframework.stereotype.Service;
+import com.gjq.train.member.entity.Member;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.gjq.train.member.req.MemberRegisterReq;
 
 /**
  * <p>
- * 会员 服务实现类
+ * 会员 服务类
  * </p>
  *
  * @author 郭建泉
  * @since 2026-07-30
  */
-@Service
-public class MemberService extends ServiceImpl<MemberMapper, Member> {
-
+public interface MemberService extends IService<Member> {
+    long register(MemberRegisterReq memberRegisterReq);
 }

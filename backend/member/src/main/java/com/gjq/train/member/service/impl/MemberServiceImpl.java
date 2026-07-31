@@ -1,0 +1,87 @@
+package com.gjq.train.member.service.impl;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.gjq.train.common.exception.BusinessException;
+import com.gjq.train.common.exception.BusinessExceptionEnum;
+import com.gjq.train.member.entity.Member;
+import com.gjq.train.member.mapper.MemberMapper;
+import com.gjq.train.member.req.MemberLoginReq;
+import com.gjq.train.member.req.MemberSendCodeReq;
+import com.gjq.train.member.resp.MemberLoginResp;
+import com.gjq.train.member.service.MemberService;
+import jakarta.annotation.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+/**
+ * <p>
+ * 会员 服务实现类
+ * </p>
+ *
+ * @author 郭建泉
+ * @since 2026-07-30
+ */
+@Service
+public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> implements MemberService {
+
+    private static final Logger LOG =
+            LoggerFactory.getLogger(MemberServiceImpl.class);
+
+    private static final String LOGIN_CODE = "8888";
+
+    @Resource
+    private MemberMapper memberMapper;
+
+    @Override
+    public void sendCode(MemberSendCodeReq memberSendCodeReq) {
+        String mobile = memberSendCodeReq.getMobile();
+        long count = lambdaQuery().eq(Member::getMobile, mobile).count();
+
+        // 未查询到手机号count=0 直接注册
+        if (count == 0) {
+            Member member = new Member();
+            member.setMobile(mobile);
+            memberMapper.insert(member);
+            LOG.info("手机号不存在，自动注册会员");
+        } else {
+            LOG.info("手机号已经注册");
+        }
+
+        // 生成验证码
+        String code = LOGIN_CODE;
+        LOG.info("生成短信验证码：{}", code);
+
+        // 保存短信记录表：手机号 短信验证码 有效期 是否已经使用 业务类型 发送时间 使用时间
+        //TODO 真实项目中需要开发，本项目不开发。
+        LOG.info("保存短信记录表");
+
+        // 对接短信通道 发动短信
+        //TODO 真实项目中需要开发，本项目不开发。
+        LOG.info("对接短信通道");
+    }
+
+    @Override
+    public MemberLoginResp login(MemberLoginReq memberLoginReq) {
+        Member member = memberMapper.selectOne(
+                new LambdaQueryWrapper<Member>()
+                        .eq(Member::getMobile, memberLoginReq.getMobile())
+        );
+        if (member == null) {
+            throw new BusinessException(
+                    BusinessExceptionEnum.MEMBER_MOBILE_NOT_EXIST
+            );
+        }
+        if (!LOGIN_CODE.equals(memberLoginReq.getCode())) {
+            throw new BusinessException(
+                    BusinessExceptionEnum.MEMBER_MOBILE_CODE_ERROR
+            );
+        }
+
+        MemberLoginResp response = new MemberLoginResp();
+        response.setId(member.getId());
+        response.setMobile(member.getMobile());
+        return response;
+    }
+}

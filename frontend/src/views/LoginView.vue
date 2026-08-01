@@ -1,11 +1,6 @@
 <template>
   <div class="auth-page">
     <main class="auth-panel">
-      <router-link class="auth-back" to="/home">
-        <ArrowLeftOutlined />
-        返回首页
-      </router-link>
-
       <header class="auth-heading">
         <RocketTwoTone two-tone-color="#c2413b" class="auth-logo" />
         <p>铁路票务系统</p>
@@ -76,10 +71,9 @@
 <script setup>
 import { reactive, ref } from 'vue'
 import { notification } from 'ant-design-vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import {
-  ArrowLeftOutlined,
   LoginOutlined,
   MobileOutlined,
   RocketTwoTone,
@@ -88,6 +82,7 @@ import {
 import { loginMember, sendLoginCode } from '@/api/member'
 
 const router = useRouter()
+const route = useRoute()
 const store = useStore()
 const submitting = ref(false)
 const sendingCode = ref(false)
@@ -132,7 +127,10 @@ async function handleLogin() {
     if (data.success) {
       store.commit('setMember', data.content)
       notification.success({ description: '登录成功' })
-      await router.push('/home')
+      const redirect = typeof route.query.redirect === 'string'
+        ? route.query.redirect
+        : '/home'
+      await router.push(redirect)
     } else {
       notification.error({ description: data.message })
     }

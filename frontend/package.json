@@ -4,8 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host 0.0.0.0",
-    "build": "vite build",
+    "dev": "vite --host 0.0.0.0 --mode development",
+    "dev:test": "vite --host 0.0.0.0 --mode test",
+    "build": "vite build --mode production",
+    "build:test": "vite build --mode test",
     "preview": "vite preview --host 0.0.0.0"
   },
   "dependencies": {

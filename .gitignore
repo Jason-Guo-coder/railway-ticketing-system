@@ -32,6 +32,6 @@ build/
 ### VS Code ###
 .vscode/
 
-### Frontend local environment ###
-/frontend/.env.development
-/frontend/.env.production
+### Frontend local environment overrides ###
+/frontend/.env.local
+/frontend/.env.*.local

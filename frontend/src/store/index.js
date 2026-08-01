@@ -8,5 +8,8 @@ export default createStore({
     setMember(state, member) {
       state.member = member
     },
+    clearMember(state) {
+      state.member = {}
+    },
   },
 })

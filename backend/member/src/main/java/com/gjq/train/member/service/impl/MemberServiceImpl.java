@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gjq.train.common.exception.BusinessException;
 import com.gjq.train.common.exception.BusinessExceptionEnum;
+import com.gjq.train.common.util.JwtUtil;
 import com.gjq.train.member.entity.Member;
 import com.gjq.train.member.mapper.MemberMapper;
 import com.gjq.train.member.req.MemberLoginReq;
@@ -13,6 +14,7 @@ import com.gjq.train.member.service.MemberService;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -33,6 +35,9 @@ public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> impleme
 
     @Resource
     private MemberMapper memberMapper;
+
+    @Value("${jwt.secret}")
+    private String jwtSecret;
 
     @Override
     public void sendCode(MemberSendCodeReq memberSendCodeReq) {
@@ -64,6 +69,7 @@ public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> impleme
 
     @Override
     public MemberLoginResp login(MemberLoginReq memberLoginReq) {
+        // 根据手机号查询会员
         Member member = memberMapper.selectOne(
                 new LambdaQueryWrapper<Member>()
                         .eq(Member::getMobile, memberLoginReq.getMobile())
@@ -73,6 +79,8 @@ public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> impleme
                     BusinessExceptionEnum.MEMBER_MOBILE_NOT_EXIST
             );
         }
+
+        // 校验登录验证码
         if (!LOGIN_CODE.equals(memberLoginReq.getCode())) {
             throw new BusinessException(
                     BusinessExceptionEnum.MEMBER_MOBILE_CODE_ERROR
@@ -82,6 +90,13 @@ public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> impleme
         MemberLoginResp response = new MemberLoginResp();
         response.setId(member.getId());
         response.setMobile(member.getMobile());
+
+        // 生成包含会员信息且1小时有效的JWT
+        response.setToken(JwtUtil.createToken(
+                response.getId(),
+                response.getMobile(),
+                jwtSecret
+        ));
         return response;
     }
 }

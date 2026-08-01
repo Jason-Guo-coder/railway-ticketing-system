@@ -40,15 +40,14 @@ const router = createRouter({
 })
 
 router.beforeEach((to) => {
-  // ponytail: replace the member id check when token authentication is added.
-  if (to.meta.requiresAuth && !store.state.member.id) {
+  if (to.meta.requiresAuth && !store.state.member.token) {
     return {
       path: '/login',
       query: { redirect: to.fullPath },
     }
   }
 
-  if (to.path === '/login' && store.state.member.id) {
+  if (to.path === '/login' && store.state.member.token) {
     return '/home'
   }
 

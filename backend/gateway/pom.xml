@@ -24,6 +24,12 @@
             <artifactId>spring-cloud-starter-gateway</artifactId>
         </dependency>
 
+        <!-- 提供 JWT 解析和签名校验能力 -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+        </dependency>
+
         <!-- 提供 macOS ARM64 原生 DNS 解析能力 -->
         <dependency>
             <groupId>io.netty</groupId>
@@ -31,6 +37,13 @@
             <version>${netty.version}</version>
             <classifier>osx-aarch_64</classifier>
             <scope>runtime</scope>
+        </dependency>
+
+        <!-- 提供网关鉴权过滤器测试能力 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

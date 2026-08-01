@@ -14,6 +14,11 @@ cd backend
 mvn test
 ```
 
+Backend environment variables:
+
+- `DB_PASSWORD`: Member database password.
+- `JWT_SECRET`: JWT signing secret. Member and Gateway must use the same value.
+
 ## Frontend
 
 ```bash

@@ -1,5 +1,7 @@
 package com.gjq.train.member.service.impl;
 
+import cn.hutool.jwt.JWT;
+import cn.hutool.jwt.JWTUtil;
 import com.gjq.train.common.exception.BusinessException;
 import com.gjq.train.common.exception.BusinessExceptionEnum;
 import com.gjq.train.member.entity.Member;
@@ -15,6 +17,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.nio.charset.StandardCharsets;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.never;
@@ -22,6 +26,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
 class MemberServiceImplTests {
@@ -35,6 +40,11 @@ class MemberServiceImplTests {
     @BeforeEach
     void setUp() {
         ReflectionTestUtils.setField(memberService, "baseMapper", memberMapper);
+        ReflectionTestUtils.setField(
+                memberService,
+                "jwtSecret",
+                "member-service-test-secret"
+        );
     }
 
     @Test
@@ -74,6 +84,14 @@ class MemberServiceImplTests {
 
         assertEquals(1L, response.getId());
         assertEquals("13900001234", response.getMobile());
+        JWT jwt = JWTUtil.parseToken(response.getToken()).setKey(
+                "member-service-test-secret".getBytes(
+                        StandardCharsets.UTF_8
+                )
+        );
+        assertTrue(jwt.validate(0));
+        assertEquals(1L, ((Number) jwt.getPayload("id")).longValue());
+        assertEquals("13900001234", jwt.getPayload("mobile"));
     }
 
     @Test

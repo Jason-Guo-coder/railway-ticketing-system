@@ -1,0 +1,10 @@
+package com.gjq.train.member.req;
+
+import com.gjq.train.common.req.PageReq;
+import lombok.Data;
+
+@Data
+public class PassengerQueryReq extends PageReq {
+
+    private Long memberId;
+}

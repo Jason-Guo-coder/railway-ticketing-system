@@ -44,7 +44,9 @@ public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> impleme
     @Override
     public void register(MemberRegisterReq memberRegisterReq) {
         String mobile = memberRegisterReq.getMobile();
-        long count = lambdaQuery().eq(Member::getMobile, mobile).count();
+        long count = memberMapper.selectCount(
+                new LambdaQueryWrapper<Member>().eq(Member::getMobile, mobile)
+        );
 
         // 未查询到手机号count=0 直接注册
         if (count == 0) {

@@ -35,3 +35,6 @@ build/
 ### Frontend local environment overrides ###
 /frontend/.env.local
 /frontend/.env.*.local
+
+# Local Codex project instructions
+/AGENTS.md

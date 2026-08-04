@@ -7,13 +7,13 @@ const router = createRouter({
     {
       path: '/',
       component: () => import('../views/ConsoleView.vue'),
-      redirect: '/home',
+      redirect: '/welcome',
       meta: { requiresAuth: true },
       children: [
         {
-          path: 'home',
+          path: 'welcome',
           component: () => import('../views/HomeView.vue'),
-          meta: { title: '工作台' },
+          meta: { title: '欢迎' },
         },
         {
           path: 'ticket',
@@ -34,7 +34,7 @@ const router = createRouter({
     },
     {
       path: '/:pathMatch(.*)*',
-      redirect: '/home',
+      redirect: '/welcome',
     },
   ],
 })
@@ -48,7 +48,7 @@ router.beforeEach((to) => {
   }
 
   if (to.path === '/login' && store.state.member.token) {
-    return '/home'
+    return '/welcome'
   }
 
   return true

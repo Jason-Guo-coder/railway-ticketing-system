@@ -129,7 +129,7 @@ async function handleLogin() {
       notification.success({ description: '登录成功' })
       const redirect = typeof route.query.redirect === 'string'
         ? route.query.redirect
-        : '/home'
+        : '/welcome'
       await router.push(redirect)
     } else {
       notification.error({ description: data.message })

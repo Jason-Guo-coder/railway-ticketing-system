@@ -11,11 +11,37 @@
         <MenuFoldOutlined v-else />
       </a-button>
 
-      <router-link class="console-brand" to="/home">
+      <router-link class="console-brand" to="/welcome">
         <SwapOutlined class="brand-icon" />
         <span>铁路票务系统</span>
       </router-link>
     </div>
+
+    <a-menu
+      v-model:selectedKeys="activeKeys"
+      class="header-menu"
+      mode="horizontal"
+      theme="dark"
+    >
+      <a-menu-item key="/welcome">
+        <router-link to="/welcome">
+          <HomeOutlined />
+          <span>欢迎</span>
+        </router-link>
+      </a-menu-item>
+      <a-menu-item key="/ticket">
+        <router-link to="/ticket">
+          <SearchOutlined />
+          <span>车票查询</span>
+        </router-link>
+      </a-menu-item>
+      <a-menu-item key="/passenger">
+        <router-link to="/passenger">
+          <TeamOutlined />
+          <span>乘车人管理</span>
+        </router-link>
+      </a-menu-item>
+    </a-menu>
 
     <div class="header-account">
       <span class="account-mobile">
@@ -31,14 +57,17 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import {
+  HomeOutlined,
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  SearchOutlined,
   SwapOutlined,
+  TeamOutlined,
   UserOutlined,
 } from '@ant-design/icons-vue'
 
@@ -50,9 +79,19 @@ defineProps({
 })
 
 const emit = defineEmits(['toggle'])
+const route = useRoute()
 const router = useRouter()
 const store = useStore()
 const member = computed(() => store.state.member)
+const activeKeys = ref([])
+
+watch(
+  () => route.path,
+  (path) => {
+    activeKeys.value = [path]
+  },
+  { immediate: true },
+)
 
 async function logout() {
   store.commit('clearMember')
@@ -83,6 +122,24 @@ async function logout() {
 .header-left {
   min-width: 0;
   gap: 8px;
+}
+
+.header-menu {
+  min-width: 390px;
+  margin: 0 24px;
+  border-bottom: 0;
+  background: transparent;
+  line-height: 64px;
+}
+
+.header-menu :deep(.ant-menu-item) {
+  padding: 0 16px;
+}
+
+.header-menu :deep(.ant-menu-item a) {
+  display: flex;
+  gap: 7px;
+  align-items: center;
 }
 
 .menu-trigger,
@@ -148,6 +205,12 @@ async function logout() {
 
   .header-account {
     gap: 4px;
+  }
+}
+
+@media (max-width: 1023px) {
+  .header-menu {
+    display: none;
   }
 }
 </style>

@@ -9,28 +9,35 @@
     @breakpoint="emit('update:collapsed', $event)"
   >
     <a-menu
+      v-model:selectedKeys="activeKeys"
       mode="inline"
-      :selected-keys="[route.path]"
-      @click="navigate"
+      @click="handleMenuClick"
     >
-      <a-menu-item key="/home">
-        <HomeOutlined />
-        <span>工作台</span>
+      <a-menu-item key="/welcome">
+        <router-link to="/welcome">
+          <HomeOutlined />
+          <span>欢迎</span>
+        </router-link>
       </a-menu-item>
       <a-menu-item key="/ticket">
-        <SearchOutlined />
-        <span>车票查询</span>
+        <router-link to="/ticket">
+          <SearchOutlined />
+          <span>车票查询</span>
+        </router-link>
       </a-menu-item>
       <a-menu-item key="/passenger">
-        <TeamOutlined />
-        <span>乘车人管理</span>
+        <router-link to="/passenger">
+          <TeamOutlined />
+          <span>乘车人管理</span>
+        </router-link>
       </a-menu-item>
     </a-menu>
   </a-layout-sider>
 </template>
 
 <script setup>
-import { useRoute, useRouter } from 'vue-router'
+import { ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { HomeOutlined, SearchOutlined, TeamOutlined } from '@ant-design/icons-vue'
 
 defineProps({
@@ -42,10 +49,17 @@ defineProps({
 
 const emit = defineEmits(['update:collapsed'])
 const route = useRoute()
-const router = useRouter()
+const activeKeys = ref([])
 
-function navigate({ key }) {
-  router.push(key)
+watch(
+  () => route.path,
+  (path) => {
+    activeKeys.value = [path]
+  },
+  { immediate: true },
+)
+
+function handleMenuClick() {
   if (window.innerWidth < 992) {
     emit('update:collapsed', true)
   }

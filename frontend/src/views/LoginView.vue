@@ -43,10 +43,10 @@
               <button
                 class="code-button"
                 type="button"
-                :disabled="sendingCode"
-                @click="handleSendCode"
+                :disabled="registering"
+                @click="handleRegister"
               >
-                {{ sendingCode ? '发送中' : '获取验证码' }}
+                {{ registering ? '发送中' : '获取验证码' }}
               </button>
             </template>
           </a-input>
@@ -79,13 +79,13 @@ import {
   RocketTwoTone,
   SafetyCertificateOutlined,
 } from '@ant-design/icons-vue'
-import { loginMember, sendLoginCode } from '@/api/member'
+import { loginMember, registerMember } from '@/api/member'
 
 const router = useRouter()
 const route = useRoute()
 const store = useStore()
 const submitting = ref(false)
-const sendingCode = ref(false)
+const registering = ref(false)
 const mobilePattern = /^1[3-9]\d{9}$/
 const mobileRules = [
   { required: true, message: '请输入手机号' },
@@ -99,15 +99,15 @@ const loginForm = reactive({
 const errorMessage = (error) =>
   error.response?.data?.message || '请求失败，请稍后再试'
 
-async function handleSendCode() {
+async function handleRegister() {
   if (!mobilePattern.test(loginForm.mobile)) {
     notification.warning({ description: '请先输入正确的手机号' })
     return
   }
 
-  sendingCode.value = true
+  registering.value = true
   try {
-    const data = await sendLoginCode(loginForm.mobile)
+    const data = await registerMember(loginForm.mobile)
     if (data.success) {
       notification.success({ description: '验证码发送成功' })
     } else {
@@ -116,7 +116,7 @@ async function handleSendCode() {
   } catch (error) {
     notification.error({ description: errorMessage(error) })
   } finally {
-    sendingCode.value = false
+    registering.value = false
   }
 }
 

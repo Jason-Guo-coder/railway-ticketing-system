@@ -40,9 +40,21 @@ class LoginMemberFilterTests {
     }
 
     @Test
-    void shouldRejectProtectedRequestWithoutToken() {
+    void shouldAllowRegisterWithoutToken() {
         MockServerWebExchange exchange = exchange(
-                MockServerHttpRequest.get("/member/member/count").build()
+                MockServerHttpRequest.post("/member/member/register").build()
+        );
+        AtomicBoolean called = new AtomicBoolean();
+
+        filter.filter(exchange, successfulChain(called)).block();
+
+        assertTrue(called.get());
+    }
+
+    @Test
+    void shouldRejectPassengerSaveWithoutToken() {
+        MockServerWebExchange exchange = exchange(
+                MockServerHttpRequest.post("/member/passenger/save").build()
         );
         AtomicBoolean called = new AtomicBoolean();
 

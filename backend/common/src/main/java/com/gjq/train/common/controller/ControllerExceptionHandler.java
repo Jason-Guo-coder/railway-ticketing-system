@@ -2,7 +2,7 @@ package com.gjq.train.common.controller;
 
 import com.gjq.train.common.exception.BusinessException;
 import com.gjq.train.common.exception.BusinessExceptionEnum;
-import com.gjq.train.common.resq.CommonResq;
+import com.gjq.train.common.resp.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -28,7 +28,7 @@ public class ControllerExceptionHandler {
      * 业务异常只记录枚举信息，并将业务描述返回给前端。
      */
     @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<CommonResq<Void>> businessExceptionHandler(
+    public ResponseEntity<Result<Void>> businessExceptionHandler(
             BusinessException exception) {
         BusinessExceptionEnum exceptionEnum = exception.getExceptionEnum();
         LOG.warn(
@@ -38,26 +38,26 @@ public class ControllerExceptionHandler {
         );
 
         return ResponseEntity.badRequest()
-                .body(CommonResq.fail(exceptionEnum.getDescription()));
+                .body(Result.fail(exceptionEnum.getDescription()));
     }
 
     /**
      * 请求体为空或 JSON 格式错误时返回统一提示。
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<CommonResq<Void>> requestBodyExceptionHandler() {
+    public ResponseEntity<Result<Void>> requestBodyExceptionHandler() {
         String message = "请求参数不能为空或格式错误";
         LOG.warn(message);
 
         return ResponseEntity.badRequest()
-                .body(CommonResq.fail(message));
+                .body(Result.fail(message));
     }
 
     /**
      * 参数校验失败时返回校验注解中定义的提示。
      */
     @ExceptionHandler(BindException.class)
-    public ResponseEntity<CommonResq<Void>> validationExceptionHandler(
+    public ResponseEntity<Result<Void>> validationExceptionHandler(
             BindException exception) {
         String message = exception.getBindingResult()
                 .getAllErrors()
@@ -69,14 +69,14 @@ public class ControllerExceptionHandler {
         LOG.warn("参数校验失败：{}", message);
 
         return ResponseEntity.badRequest()
-                .body(CommonResq.fail(message));
+                .body(Result.fail(message));
     }
 
     /**
      * 捕获未在业务代码中处理的异常，并返回统一失败结果。
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<CommonResq<Void>> exceptionHandler(
+    public ResponseEntity<Result<Void>> exceptionHandler(
             Exception exception) {
         LOG.error("系统异常", exception);
 
@@ -88,6 +88,6 @@ public class ControllerExceptionHandler {
                 : "系统异常，请联系管理员";
 
         return ResponseEntity.status(status)
-                .body(CommonResq.fail(message));
+                .body(Result.fail(message));
     }
 }

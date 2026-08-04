@@ -7,7 +7,7 @@ import com.gjq.train.common.exception.BusinessExceptionEnum;
 import com.gjq.train.member.entity.Member;
 import com.gjq.train.member.mapper.MemberMapper;
 import com.gjq.train.member.req.MemberLoginReq;
-import com.gjq.train.member.req.MemberSendCodeReq;
+import com.gjq.train.member.req.MemberRegisterReq;
 import com.gjq.train.member.resp.MemberLoginResp;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -50,10 +51,10 @@ class MemberServiceImplTests {
     @Test
     void shouldCreateMemberWhenMobileDoesNotExist() {
         when(memberMapper.selectCount(any())).thenReturn(0L);
-        MemberSendCodeReq request = new MemberSendCodeReq();
+        MemberRegisterReq request = new MemberRegisterReq();
         request.setMobile("13900001234");
 
-        memberService.sendCode(request);
+        memberService.register(request);
 
         verify(memberMapper).insert(argThat(
                 (Member member) ->
@@ -64,10 +65,10 @@ class MemberServiceImplTests {
     @Test
     void shouldNotCreateMemberWhenMobileExists() {
         when(memberMapper.selectCount(any())).thenReturn(1L);
-        MemberSendCodeReq request = new MemberSendCodeReq();
+        MemberRegisterReq request = new MemberRegisterReq();
         request.setMobile("13900001234");
 
-        memberService.sendCode(request);
+        memberService.register(request);
 
         verify(memberMapper, never()).insert(any(Member.class));
     }
@@ -77,7 +78,7 @@ class MemberServiceImplTests {
         Member member = new Member();
         member.setId(1L);
         member.setMobile("13900001234");
-        when(memberMapper.selectOne(any())).thenReturn(member);
+        when(memberMapper.selectList(any())).thenReturn(List.of(member));
         MemberLoginReq request = loginRequest("8888");
 
         MemberLoginResp response = memberService.login(request);
@@ -96,7 +97,7 @@ class MemberServiceImplTests {
 
     @Test
     void shouldRejectLoginWhenMemberDoesNotExist() {
-        when(memberMapper.selectOne(any())).thenReturn(null);
+        when(memberMapper.selectList(any())).thenReturn(List.of());
 
         BusinessException exception = assertThrows(
                 BusinessException.class,
@@ -114,7 +115,7 @@ class MemberServiceImplTests {
         Member member = new Member();
         member.setId(1L);
         member.setMobile("13900001234");
-        when(memberMapper.selectOne(any())).thenReturn(member);
+        when(memberMapper.selectList(any())).thenReturn(List.of(member));
 
         BusinessException exception = assertThrows(
                 BusinessException.class,
@@ -125,6 +126,22 @@ class MemberServiceImplTests {
                 BusinessExceptionEnum.MEMBER_MOBILE_CODE_ERROR,
                 exception.getExceptionEnum()
         );
+    }
+
+    @Test
+    void shouldLoginWhenMobileHasDuplicateRecords() {
+        Member first = new Member();
+        first.setId(1L);
+        first.setMobile("13900001234");
+        Member second = new Member();
+        second.setId(2L);
+        second.setMobile("13900001234");
+        when(memberMapper.selectList(any())).thenReturn(List.of(first, second));
+
+        MemberLoginResp response = memberService.login(loginRequest("8888"));
+
+        assertEquals(1L, response.getId());
+        assertEquals("13900001234", response.getMobile());
     }
 
     private MemberLoginReq loginRequest(String code) {

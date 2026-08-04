@@ -2,7 +2,7 @@ package com.gjq.train.common.controller;
 
 import com.gjq.train.common.exception.BusinessException;
 import com.gjq.train.common.exception.BusinessExceptionEnum;
-import com.gjq.train.common.resq.CommonResq;
+import com.gjq.train.common.resp.Result;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +21,7 @@ class ControllerExceptionHandlerTests {
                 BusinessExceptionEnum.MEMBER_MOBILE_EXIST
         );
 
-        ResponseEntity<CommonResq<Void>> response =
+        ResponseEntity<Result<Void>> response =
                 handler.businessExceptionHandler(exception);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -35,7 +35,7 @@ class ControllerExceptionHandlerTests {
 
     @Test
     void shouldHideSystemExceptionDetails() {
-        ResponseEntity<CommonResq<Void>> response =
+        ResponseEntity<Result<Void>> response =
                 handler.exceptionHandler(
                         new RuntimeException("数据库连接内部信息")
                 );

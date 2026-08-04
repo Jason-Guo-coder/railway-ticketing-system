@@ -1,4 +1,4 @@
-package com.gjq.train.common.resq;
+package com.gjq.train.common.resp;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CommonResq<T> {
+public class Result<T> {
 
     private boolean success = true;
 
@@ -24,21 +24,21 @@ public class CommonResq<T> {
     /**
      * 创建不包含返回内容的成功结果。
      */
-    public static <T> CommonResq<T> success() {
-        return new CommonResq<>(true, null, null);
+    public static <T> Result<T> success() {
+        return new Result<>(true, null, null);
     }
 
     /**
      * 创建包含返回内容的成功结果。
      */
-    public static <T> CommonResq<T> success(T content) {
-        return new CommonResq<>(true, null, content);
+    public static <T> Result<T> success(T content) {
+        return new Result<>(true, null, content);
     }
 
     /**
      * 创建失败结果。
      */
-    public static <T> CommonResq<T> fail(String message) {
-        return new CommonResq<>(false, message, null);
+    public static <T> Result<T> fail(String message) {
+        return new Result<>(false, message, null);
     }
 }

@@ -1,8 +1,8 @@
 package com.gjq.train.member.controller;
 
-import com.gjq.train.common.resq.CommonResq;
+import com.gjq.train.common.resp.Result;
 import com.gjq.train.member.req.MemberLoginReq;
-import com.gjq.train.member.req.MemberSendCodeReq;
+import com.gjq.train.member.req.MemberRegisterReq;
 import com.gjq.train.member.resp.MemberLoginResp;
 import com.gjq.train.member.service.MemberService;
 import jakarta.annotation.Resource;
@@ -21,20 +21,20 @@ public class MemberController {
     private MemberService memberService;
 
     @GetMapping("/count")
-    public CommonResq<Long> count() {
-        return CommonResq.success(memberService.count());
+    public Result<Long> count() {
+        return Result.success(memberService.count());
     }
 
-    @PostMapping("/send-code")
-    public CommonResq<Void> sendCode(
-            @Valid @RequestBody MemberSendCodeReq memberSendCodeReq) {
-        memberService.sendCode(memberSendCodeReq);
-        return CommonResq.success();
+    @PostMapping("/register")
+    public Result<Void> register(
+            @Valid @RequestBody MemberRegisterReq memberRegisterReq) {
+        memberService.register(memberRegisterReq);
+        return Result.success();
     }
 
     @PostMapping("/login")
-    public CommonResq<MemberLoginResp> login(
+    public Result<MemberLoginResp> login(
             @Valid @RequestBody MemberLoginReq memberLoginReq) {
-        return CommonResq.success(memberService.login(memberLoginReq));
+        return Result.success(memberService.login(memberLoginReq));
     }
 }

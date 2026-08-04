@@ -3,7 +3,7 @@ package com.gjq.train.member.service;
 import com.gjq.train.member.entity.Member;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.gjq.train.member.req.MemberLoginReq;
-import com.gjq.train.member.req.MemberSendCodeReq;
+import com.gjq.train.member.req.MemberRegisterReq;
 import com.gjq.train.member.resp.MemberLoginResp;
 
 /**
@@ -15,7 +15,7 @@ import com.gjq.train.member.resp.MemberLoginResp;
  * @since 2026-07-30
  */
 public interface MemberService extends IService<Member> {
-    void sendCode(MemberSendCodeReq memberSendCodeReq);
+    void register(MemberRegisterReq memberRegisterReq);
 
     MemberLoginResp login(MemberLoginReq memberLoginReq);
 }

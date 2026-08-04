@@ -8,7 +8,7 @@ import com.gjq.train.common.util.JwtUtil;
 import com.gjq.train.member.entity.Member;
 import com.gjq.train.member.mapper.MemberMapper;
 import com.gjq.train.member.req.MemberLoginReq;
-import com.gjq.train.member.req.MemberSendCodeReq;
+import com.gjq.train.member.req.MemberRegisterReq;
 import com.gjq.train.member.resp.MemberLoginResp;
 import com.gjq.train.member.service.MemberService;
 import jakarta.annotation.Resource;
@@ -16,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * <p>
@@ -40,8 +42,8 @@ public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> impleme
     private String jwtSecret;
 
     @Override
-    public void sendCode(MemberSendCodeReq memberSendCodeReq) {
-        String mobile = memberSendCodeReq.getMobile();
+    public void register(MemberRegisterReq memberRegisterReq) {
+        String mobile = memberRegisterReq.getMobile();
         long count = lambdaQuery().eq(Member::getMobile, mobile).count();
 
         // 未查询到手机号count=0 直接注册
@@ -70,15 +72,16 @@ public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> impleme
     @Override
     public MemberLoginResp login(MemberLoginReq memberLoginReq) {
         // 根据手机号查询会员
-        Member member = memberMapper.selectOne(
+        List<Member> members = memberMapper.selectList(
                 new LambdaQueryWrapper<Member>()
                         .eq(Member::getMobile, memberLoginReq.getMobile())
         );
-        if (member == null) {
+        if (members == null || members.isEmpty()) {
             throw new BusinessException(
                     BusinessExceptionEnum.MEMBER_MOBILE_NOT_EXIST
             );
         }
+        Member member = members.get(0);
 
         // 校验登录验证码
         if (!LOGIN_CODE.equals(memberLoginReq.getCode())) {

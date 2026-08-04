@@ -1,5 +1,6 @@
 package com.gjq.train.generator;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.generator.FastAutoGenerator;
 import com.baomidou.mybatisplus.generator.config.DataSourceConfig;
 import com.baomidou.mybatisplus.generator.config.OutputFile;
@@ -21,7 +22,7 @@ public class CodeGenerator {
     );
     private static final String JDBC_USERNAME =
             System.getenv().getOrDefault("DB_USERNAME", "oceana_dev");
-    private static final String[] TABLES = {"member"};
+    private static final String[] TABLES = {"passenger"};
 
     private CodeGenerator() {
     }
@@ -57,6 +58,7 @@ public class CodeGenerator {
                         .entityBuilder()
                         .disableSerialVersionUID()
                         .enableLombok()
+                        .idType(IdType.ASSIGN_ID)
                         .enableTableFieldAnnotation()
                         .enableFileOverride()
                         .mapperBuilder()

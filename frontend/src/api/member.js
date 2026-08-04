@@ -1,7 +1,7 @@
 import request from './request'
 
-export function sendLoginCode(mobile) {
-  return request.post('/member/member/send-code', { mobile })
+export function registerMember(mobile) {
+  return request.post('/member/member/register', { mobile })
 }
 
 export function loginMember(data) {

@@ -2,7 +2,6 @@ package com.gjq.train.member.controller;
 
 import com.gjq.train.common.controller.ControllerExceptionHandler;
 import com.gjq.train.member.req.MemberLoginReq;
-import com.gjq.train.member.req.MemberSendCodeReq;
 import com.gjq.train.member.resp.MemberLoginResp;
 import com.gjq.train.member.service.MemberService;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,11 +40,11 @@ class MemberControllerTests {
     }
 
     @Test
-    void shouldSendCodeWithJsonBody() throws Exception {
+    void shouldRegisterWithJsonBody() throws Exception {
         String mobile = "13800001234";
 
         mockMvc.perform(
-                        post("/member/send-code")
+                        post("/member/register")
                                 .contentType(APPLICATION_JSON)
                                 .content("""
                                         {
@@ -57,7 +56,7 @@ class MemberControllerTests {
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.content").doesNotExist());
 
-        verify(memberService).sendCode(argThat(
+        verify(memberService).register(argThat(
                 request -> mobile.equals(request.getMobile())
         ));
     }
@@ -66,7 +65,7 @@ class MemberControllerTests {
     void shouldReturnMobileValidationMessageForMissingParameter()
             throws Exception {
         mockMvc.perform(
-                        post("/member/send-code")
+                        post("/member/register")
                                 .contentType(APPLICATION_JSON)
                                 .content("{}")
                 )
@@ -82,7 +81,7 @@ class MemberControllerTests {
     void shouldReturnMobileFormatMessageForInvalidMobile()
             throws Exception {
         mockMvc.perform(
-                        post("/member/send-code")
+                        post("/member/register")
                                 .contentType(APPLICATION_JSON)
                                 .content("""
                                         {

@@ -2,6 +2,8 @@ package com.gjq.train.business.trainstation.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.gjq.train.business.station.service.StationService;
+import com.gjq.train.business.train.service.TrainService;
 import com.gjq.train.business.trainstation.entity.TrainStation;
 import com.gjq.train.business.trainstation.mapper.TrainStationMapper;
 import com.gjq.train.business.trainstation.req.TrainStationQueryReq;
@@ -33,11 +35,18 @@ class TrainStationServiceImplTests {
     @Mock
     private TrainStationMapper trainStationMapper;
 
+    @Mock
+    private TrainService trainService;
+
+    @Mock
+    private StationService stationService;
+
     @InjectMocks
     private TrainStationServiceImpl trainStationService;
 
     @Test
     void shouldInsertNewTrainStation() {
+        mockReferencesExist();
         when(trainStationMapper.selectCount(any(Wrapper.class)))
                 .thenReturn(0L, 0L);
 
@@ -61,6 +70,7 @@ class TrainStationServiceImplTests {
 
     @Test
     void shouldRejectDuplicateIndex() {
+        mockReferencesExist();
         when(trainStationMapper.selectCount(any(Wrapper.class)))
                 .thenReturn(1L);
 
@@ -74,8 +84,34 @@ class TrainStationServiceImplTests {
 
     @Test
     void shouldRejectDuplicateName() {
+        mockReferencesExist();
         when(trainStationMapper.selectCount(any(Wrapper.class)))
                 .thenReturn(0L, 1L);
+
+        assertThrows(
+                BusinessException.class,
+                () -> trainStationService.save(saveRequest())
+        );
+
+        verify(trainStationMapper, never()).insert(any(TrainStation.class));
+    }
+
+    @Test
+    void shouldRejectTrainStationWithMissingTrain() {
+        when(trainService.existsByCode("G1")).thenReturn(false);
+
+        assertThrows(
+                BusinessException.class,
+                () -> trainStationService.save(saveRequest())
+        );
+
+        verify(trainStationMapper, never()).insert(any(TrainStation.class));
+    }
+
+    @Test
+    void shouldRejectTrainStationWithMissingStation() {
+        when(trainService.existsByCode("G1")).thenReturn(true);
+        when(stationService.existsByName("南京南")).thenReturn(false);
 
         assertThrows(
                 BusinessException.class,
@@ -99,6 +135,7 @@ class TrainStationServiceImplTests {
         TrainStation trainStation = new TrainStation();
         trainStation.setId(100L);
         when(trainStationMapper.selectById(100L)).thenReturn(trainStation);
+        mockReferencesExist();
         when(trainStationMapper.selectCount(any(Wrapper.class)))
                 .thenReturn(0L, 0L);
 
@@ -111,6 +148,22 @@ class TrainStationServiceImplTests {
                                 && updated.getUpdateTime() != null
                                 && updated.getCreateTime() == null
         ));
+    }
+
+    @Test
+    void shouldRejectUpdatingTrainStationWithMissingTrain() {
+        TrainStation trainStation = new TrainStation();
+        trainStation.setId(100L);
+        when(trainStationMapper.selectById(100L)).thenReturn(trainStation);
+        when(trainService.existsByCode("G1")).thenReturn(false);
+
+        assertThrows(
+                BusinessException.class,
+                () -> trainStationService.update(updateRequest())
+        );
+
+        verify(trainStationMapper, never())
+                .updateById(any(TrainStation.class));
     }
 
     @Test
@@ -137,6 +190,11 @@ class TrainStationServiceImplTests {
 
         assertEquals(1L, response.getTotal());
         assertEquals(1, response.getList().size());
+    }
+
+    private void mockReferencesExist() {
+        when(trainService.existsByCode("G1")).thenReturn(true);
+        when(stationService.existsByName("南京南")).thenReturn(true);
     }
 
     private TrainStationSaveReq saveRequest() {

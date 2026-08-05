@@ -29,4 +29,6 @@ public interface StationService extends IService<Station> {
     PageResp<StationQueryResp> queryList(StationQueryReq request);
 
     List<StationQueryResp> queryAll();
+
+    boolean existsByName(String name);
 }

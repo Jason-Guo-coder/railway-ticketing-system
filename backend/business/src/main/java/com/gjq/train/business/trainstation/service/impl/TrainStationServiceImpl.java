@@ -3,6 +3,8 @@ package com.gjq.train.business.trainstation.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.gjq.train.business.station.service.StationService;
+import com.gjq.train.business.train.service.TrainService;
 import com.gjq.train.business.trainstation.entity.TrainStation;
 import com.gjq.train.business.trainstation.mapper.TrainStationMapper;
 import com.gjq.train.business.trainstation.req.TrainStationQueryReq;
@@ -37,19 +39,28 @@ public class TrainStationServiceImpl
     @Resource
     private TrainStationMapper trainStationMapper;
 
+    @Resource
+    private TrainService trainService;
+
+    @Resource
+    private StationService stationService;
+
     @Override
     public void save(TrainStationSaveReq request) {
-        //1. 校验同一车次下的站序和站名唯一性
+        //1. 校验关联车次和基础车站存在
+        checkReferencesExist(request.getTrainCode(), request.getName());
+
+        //2. 校验同一车次下的站序和站名唯一性
         checkIndexUnique(request.getTrainCode(), request.getIndex(), null);
         checkNameUnique(request.getTrainCode(), request.getName(), null);
 
-        //2. 将请求参数转换为车次车站实体
+        //3. 将请求参数转换为车次车站实体
         TrainStation trainStation = BeanUtil.copyProperties(
                 request,
                 TrainStation.class
         );
 
-        //3. 设置新增和修改时间后保存
+        //4. 设置新增和修改时间后保存
         LocalDateTime now = LocalDateTime.now();
         trainStation.setCreateTime(now);
         trainStation.setUpdateTime(now);
@@ -78,7 +89,10 @@ public class TrainStationServiceImpl
             );
         }
 
-        //2. 校验同一车次下的新站序和新站名未被其他记录使用
+        //2. 校验关联车次和基础车站存在
+        checkReferencesExist(request.getTrainCode(), request.getName());
+
+        //3. 校验同一车次下的新站序和新站名未被其他记录使用
         checkIndexUnique(
                 request.getTrainCode(),
                 request.getIndex(),
@@ -90,7 +104,7 @@ public class TrainStationServiceImpl
                 request.getId()
         );
 
-        //3. 转换实体并更新可编辑字段
+        //4. 转换实体并更新可编辑字段
         TrainStation trainStation = BeanUtil.copyProperties(
                 request,
                 TrainStation.class
@@ -135,6 +149,19 @@ public class TrainStationServiceImpl
         response.setTotal(trainStationPage.getTotal());
         response.setList(list);
         return response;
+    }
+
+    private void checkReferencesExist(String trainCode, String stationName) {
+        if (!trainService.existsByCode(trainCode)) {
+            throw new BusinessException(
+                    BusinessExceptionEnum.BUSINESS_TRAIN_NOT_EXIST
+            );
+        }
+        if (!stationService.existsByName(stationName)) {
+            throw new BusinessException(
+                    BusinessExceptionEnum.BUSINESS_STATION_NOT_EXIST
+            );
+        }
     }
 
     private void checkIndexUnique(

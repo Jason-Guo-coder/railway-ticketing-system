@@ -2,6 +2,7 @@ package com.gjq.train.business.traincarriage.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.gjq.train.business.train.service.TrainService;
 import com.gjq.train.business.traincarriage.entity.TrainCarriage;
 import com.gjq.train.business.traincarriage.mapper.TrainCarriageMapper;
 import com.gjq.train.business.traincarriage.req.TrainCarriageQueryReq;
@@ -31,11 +32,15 @@ class TrainCarriageServiceImplTests {
     @Mock
     private TrainCarriageMapper trainCarriageMapper;
 
+    @Mock
+    private TrainService trainService;
+
     @InjectMocks
     private TrainCarriageServiceImpl trainCarriageService;
 
     @Test
     void shouldInsertCarriageAndCalculateSeatLayout() {
+        when(trainService.existsByCode("G1")).thenReturn(true);
         when(trainCarriageMapper.selectCount(any(Wrapper.class)))
                 .thenReturn(0L);
 
@@ -62,6 +67,7 @@ class TrainCarriageServiceImplTests {
 
     @Test
     void shouldRejectInvalidSeatType() {
+        when(trainService.existsByCode("G1")).thenReturn(true);
         TrainCarriageSaveReq request = saveRequest();
         request.setSeatType("9");
 
@@ -75,8 +81,21 @@ class TrainCarriageServiceImplTests {
 
     @Test
     void shouldRejectDuplicateCarriageIndex() {
+        when(trainService.existsByCode("G1")).thenReturn(true);
         when(trainCarriageMapper.selectCount(any(Wrapper.class)))
                 .thenReturn(1L);
+
+        assertThrows(
+                BusinessException.class,
+                () -> trainCarriageService.save(saveRequest())
+        );
+
+        verify(trainCarriageMapper, never()).insert(any(TrainCarriage.class));
+    }
+
+    @Test
+    void shouldRejectCarriageWithMissingTrain() {
+        when(trainService.existsByCode("G1")).thenReturn(false);
 
         assertThrows(
                 BusinessException.class,
@@ -110,6 +129,7 @@ class TrainCarriageServiceImplTests {
         TrainCarriage carriage = new TrainCarriage();
         carriage.setId(100L);
         when(trainCarriageMapper.selectById(100L)).thenReturn(carriage);
+        when(trainService.existsByCode("G1")).thenReturn(true);
         when(trainCarriageMapper.selectCount(any(Wrapper.class)))
                 .thenReturn(0L);
 
@@ -127,6 +147,22 @@ class TrainCarriageServiceImplTests {
                                 && updated.getCreateTime() == null
                                 && updated.getUpdateTime() != null
         ));
+    }
+
+    @Test
+    void shouldRejectUpdatingCarriageWithMissingTrain() {
+        TrainCarriage carriage = new TrainCarriage();
+        carriage.setId(100L);
+        when(trainCarriageMapper.selectById(100L)).thenReturn(carriage);
+        when(trainService.existsByCode("G1")).thenReturn(false);
+
+        assertThrows(
+                BusinessException.class,
+                () -> trainCarriageService.update(updateRequest())
+        );
+
+        verify(trainCarriageMapper, never())
+                .updateById(any(TrainCarriage.class));
     }
 
     @Test

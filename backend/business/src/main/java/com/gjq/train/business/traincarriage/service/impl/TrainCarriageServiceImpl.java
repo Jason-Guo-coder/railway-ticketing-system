@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.gjq.train.business.train.service.TrainService;
 import com.gjq.train.business.traincarriage.entity.TrainCarriage;
 import com.gjq.train.business.traincarriage.enums.SeatTypeEnum;
 import com.gjq.train.business.traincarriage.mapper.TrainCarriageMapper;
@@ -38,20 +39,26 @@ public class TrainCarriageServiceImpl
     @Resource
     private TrainCarriageMapper trainCarriageMapper;
 
+    @Resource
+    private TrainService trainService;
+
     @Override
     public void save(TrainCarriageSaveReq request) {
-        //1. 校验座位类型和同一车次下的厢号唯一性
+        //1. 校验关联车次存在
+        checkTrainExists(request.getTrainCode());
+
+        //2. 校验座位类型和同一车次下的厢号唯一性
         SeatTypeEnum seatType = requireSeatType(request.getSeatType());
         checkIndexUnique(request.getTrainCode(), request.getIndex(), null);
 
-        //2. 根据座位类型和排数自动计算列数、座位数
+        //3. 根据座位类型和排数自动计算列数、座位数
         TrainCarriage trainCarriage = BeanUtil.copyProperties(
                 request,
                 TrainCarriage.class
         );
         calculateSeatLayout(trainCarriage, seatType);
 
-        //3. 设置新增和修改时间后保存
+        //4. 设置新增和修改时间后保存
         LocalDateTime now = LocalDateTime.now();
         trainCarriage.setCreateTime(now);
         trainCarriage.setUpdateTime(now);
@@ -80,7 +87,10 @@ public class TrainCarriageServiceImpl
             );
         }
 
-        //2. 校验座位类型和修改后的厢号唯一性
+        //2. 校验关联车次存在
+        checkTrainExists(request.getTrainCode());
+
+        //3. 校验座位类型和修改后的厢号唯一性
         SeatTypeEnum seatType = requireSeatType(request.getSeatType());
         checkIndexUnique(
                 request.getTrainCode(),
@@ -88,7 +98,7 @@ public class TrainCarriageServiceImpl
                 request.getId()
         );
 
-        //3. 转换实体并重新计算列数、座位数
+        //4. 转换实体并重新计算列数、座位数
         TrainCarriage trainCarriage = BeanUtil.copyProperties(
                 request,
                 TrainCarriage.class
@@ -151,6 +161,14 @@ public class TrainCarriageServiceImpl
             );
         }
         return seatType;
+    }
+
+    private void checkTrainExists(String trainCode) {
+        if (!trainService.existsByCode(trainCode)) {
+            throw new BusinessException(
+                    BusinessExceptionEnum.BUSINESS_TRAIN_NOT_EXIST
+            );
+        }
     }
 
     private void calculateSeatLayout(

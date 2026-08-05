@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.gjq.train.business.station.service.StationService;
 import com.gjq.train.business.train.entity.Train;
 import com.gjq.train.business.train.enums.TrainTypeEnum;
 import com.gjq.train.business.train.mapper.TrainMapper;
@@ -28,10 +29,14 @@ public class TrainServiceImpl extends ServiceImpl<TrainMapper, Train>
     @Resource
     private TrainMapper trainMapper;
 
+    @Resource
+    private StationService stationService;
+
     @Override
     public void save(TrainSaveReq request) {
-        //1. 校验车次类型和车次编号唯一性
+        //1. 校验车次类型、关联车站和车次编号唯一性
         checkType(request.getType());
+        checkStationsExist(request.getStart(), request.getEnd());
         checkCodeUnique(request.getCode(), null);
 
         //2. 将请求参数转换为车次实体
@@ -66,8 +71,9 @@ public class TrainServiceImpl extends ServiceImpl<TrainMapper, Train>
             );
         }
 
-        //2. 校验车次类型和车次编号唯一性
+        //2. 校验车次类型、关联车站和车次编号唯一性
         checkType(request.getType());
+        checkStationsExist(request.getStart(), request.getEnd());
         checkCodeUnique(request.getCode(), request.getId());
 
         //3. 转换实体并更新可编辑字段
@@ -112,10 +118,27 @@ public class TrainServiceImpl extends ServiceImpl<TrainMapper, Train>
         return BeanUtil.copyToList(trains, TrainQueryResp.class);
     }
 
+    @Override
+    public boolean existsByCode(String code) {
+        return trainMapper.selectCount(
+                new LambdaQueryWrapper<Train>()
+                        .eq(Train::getCode, code)
+        ) > 0;
+    }
+
     private void checkType(String type) {
         if (!TrainTypeEnum.contains(type)) {
             throw new BusinessException(
                     BusinessExceptionEnum.BUSINESS_TRAIN_TYPE_INVALID
+            );
+        }
+    }
+
+    private void checkStationsExist(String start, String end) {
+        if (!stationService.existsByName(start)
+                || !stationService.existsByName(end)) {
+            throw new BusinessException(
+                    BusinessExceptionEnum.BUSINESS_STATION_NOT_EXIST
             );
         }
     }

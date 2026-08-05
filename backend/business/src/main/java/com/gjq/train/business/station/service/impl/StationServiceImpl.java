@@ -121,6 +121,14 @@ public class StationServiceImpl extends ServiceImpl<StationMapper, Station> impl
         return BeanUtil.copyToList(stations, StationQueryResp.class);
     }
 
+    @Override
+    public boolean existsByName(String name) {
+        return stationMapper.selectCount(
+                new LambdaQueryWrapper<Station>()
+                        .eq(Station::getName, name)
+        ) > 0;
+    }
+
     private void checkNameUnique(String name, Long excludeId) {
         //1. 按站名查询现有车站
         LambdaQueryWrapper<Station> queryWrapper =

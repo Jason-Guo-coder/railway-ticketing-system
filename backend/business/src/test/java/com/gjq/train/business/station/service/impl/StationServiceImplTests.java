@@ -20,6 +20,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.never;
@@ -132,6 +133,15 @@ class StationServiceImplTests {
 
         assertEquals(1, response.size());
         assertNotNull(response.get(0));
+    }
+
+    @Test
+    void shouldCheckStationExistsByName() {
+        when(stationMapper.selectCount(any(Wrapper.class))).thenReturn(1L);
+
+        boolean exists = stationService.existsByName("南京南");
+
+        assertTrue(exists);
     }
 
     private StationSaveReq saveRequest() {

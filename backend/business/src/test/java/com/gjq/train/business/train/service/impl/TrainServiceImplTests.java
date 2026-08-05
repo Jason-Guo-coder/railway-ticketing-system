@@ -2,6 +2,7 @@ package com.gjq.train.business.train.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.gjq.train.business.station.service.StationService;
 import com.gjq.train.business.train.entity.Train;
 import com.gjq.train.business.train.mapper.TrainMapper;
 import com.gjq.train.business.train.req.TrainQueryReq;
@@ -20,6 +21,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.never;
@@ -32,11 +34,16 @@ class TrainServiceImplTests {
     @Mock
     private TrainMapper trainMapper;
 
+    @Mock
+    private StationService stationService;
+
     @InjectMocks
     private TrainServiceImpl trainService;
 
     @Test
     void shouldInsertNewTrain() {
+        when(stationService.existsByName(any(String.class)))
+                .thenReturn(true);
         when(trainMapper.selectCount(any(Wrapper.class))).thenReturn(0L);
 
         trainService.save(saveRequest());
@@ -70,7 +77,21 @@ class TrainServiceImplTests {
 
     @Test
     void shouldRejectDuplicateTrainCode() {
+        when(stationService.existsByName(any(String.class)))
+                .thenReturn(true);
         when(trainMapper.selectCount(any(Wrapper.class))).thenReturn(1L);
+
+        assertThrows(
+                BusinessException.class,
+                () -> trainService.save(saveRequest())
+        );
+
+        verify(trainMapper, never()).insert(any(Train.class));
+    }
+
+    @Test
+    void shouldRejectTrainWithMissingStation() {
+        when(stationService.existsByName("北京南")).thenReturn(false);
 
         assertThrows(
                 BusinessException.class,
@@ -94,6 +115,8 @@ class TrainServiceImplTests {
         Train train = new Train();
         train.setId(100L);
         when(trainMapper.selectById(100L)).thenReturn(train);
+        when(stationService.existsByName(any(String.class)))
+                .thenReturn(true);
         when(trainMapper.selectCount(any(Wrapper.class))).thenReturn(0L);
 
         trainService.update(updateRequest());
@@ -105,6 +128,21 @@ class TrainServiceImplTests {
                                 && updated.getUpdateTime() != null
                                 && updated.getCreateTime() == null
         ));
+    }
+
+    @Test
+    void shouldRejectUpdatingTrainWithMissingStation() {
+        Train train = new Train();
+        train.setId(100L);
+        when(trainMapper.selectById(100L)).thenReturn(train);
+        when(stationService.existsByName("北京南")).thenReturn(false);
+
+        assertThrows(
+                BusinessException.class,
+                () -> trainService.update(updateRequest())
+        );
+
+        verify(trainMapper, never()).updateById(any(Train.class));
     }
 
     @Test
@@ -143,6 +181,15 @@ class TrainServiceImplTests {
         List<?> response = trainService.queryAll();
 
         assertEquals(1, response.size());
+    }
+
+    @Test
+    void shouldCheckTrainExistsByCode() {
+        when(trainMapper.selectCount(any(Wrapper.class))).thenReturn(1L);
+
+        boolean exists = trainService.existsByCode("G100");
+
+        assertTrue(exists);
     }
 
     private TrainSaveReq saveRequest() {

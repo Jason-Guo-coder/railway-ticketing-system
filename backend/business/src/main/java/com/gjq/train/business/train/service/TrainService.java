@@ -21,4 +21,6 @@ public interface TrainService extends IService<Train> {
     PageResp<TrainQueryResp> queryList(TrainQueryReq request);
 
     List<TrainQueryResp> queryAll();
+
+    boolean existsByCode(String code);
 }

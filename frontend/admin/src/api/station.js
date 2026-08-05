@@ -15,3 +15,7 @@ export function updateStation(data) {
 export function queryStationList(params) {
   return request.get('/business/admin/station/query-list', { params })
 }
+
+export function queryAllStations() {
+  return request.get('/business/admin/station/query-all')
+}

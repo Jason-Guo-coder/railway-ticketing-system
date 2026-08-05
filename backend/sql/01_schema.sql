@@ -10,6 +10,8 @@ USE `railway_ticketing_system`;
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
+DROP TABLE IF EXISTS `train_carriage`;
+DROP TABLE IF EXISTS `train_station`;
 DROP TABLE IF EXISTS `train`;
 DROP TABLE IF EXISTS `station`;
 DROP TABLE IF EXISTS `passenger`;
@@ -72,5 +74,42 @@ CREATE TABLE `train` (
   DEFAULT CHARACTER SET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci
   COMMENT = '车次';
+
+CREATE TABLE `train_station` (
+    `id` BIGINT NOT NULL COMMENT 'id',
+    `train_code` VARCHAR(20) NOT NULL COMMENT '车次编号',
+    `index` INT NOT NULL COMMENT '站序',
+    `name` VARCHAR(20) NOT NULL COMMENT '站名',
+    `name_pinyin` VARCHAR(50) NOT NULL COMMENT '站名拼音',
+    `in_time` TIME DEFAULT NULL COMMENT '进站时间',
+    `out_time` TIME DEFAULT NULL COMMENT '出站时间',
+    `stop_time` TIME DEFAULT NULL COMMENT '停站时长',
+    `km` DECIMAL(8, 2) NOT NULL COMMENT '里程（公里）|从上一站到本站的距离',
+    `create_time` DATETIME(3) DEFAULT NULL COMMENT '新增时间',
+    `update_time` DATETIME(3) DEFAULT NULL COMMENT '修改时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `train_code_index_unique` (`train_code`, `index`),
+    UNIQUE KEY `train_code_name_unique` (`train_code`, `name`)
+) ENGINE = InnoDB
+  DEFAULT CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci
+  COMMENT = '火车车站';
+
+CREATE TABLE `train_carriage` (
+    `id` BIGINT NOT NULL COMMENT 'id',
+    `train_code` VARCHAR(20) NOT NULL COMMENT '车次编号',
+    `index` INT NOT NULL COMMENT '厢号',
+    `seat_type` CHAR(1) NOT NULL COMMENT '座位类型|枚举[SeatTypeEnum]',
+    `seat_count` INT NOT NULL COMMENT '座位数',
+    `row_count` INT NOT NULL COMMENT '排数',
+    `column_count` INT NOT NULL COMMENT '列数',
+    `create_time` DATETIME(3) DEFAULT NULL COMMENT '新增时间',
+    `update_time` DATETIME(3) DEFAULT NULL COMMENT '修改时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `train_code_index_unique` (`train_code`, `index`)
+) ENGINE = InnoDB
+  DEFAULT CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci
+  COMMENT = '火车车厢';
 
 SET FOREIGN_KEY_CHECKS = 1;

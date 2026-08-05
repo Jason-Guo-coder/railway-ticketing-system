@@ -7,7 +7,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.core.env.Environment;
 
-@MapperScan("com.gjq.train.member.mapper")
+@MapperScan({
+        "com.gjq.train.member.member.mapper",
+        "com.gjq.train.member.passenger.mapper"
+})
 @SpringBootApplication(scanBasePackages = "com.gjq.train")
 public class MemberApplication {
 

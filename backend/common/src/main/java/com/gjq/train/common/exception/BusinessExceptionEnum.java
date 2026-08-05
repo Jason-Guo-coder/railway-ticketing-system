@@ -53,6 +53,36 @@ public enum BusinessExceptionEnum {
     BUSINESS_TRAIN_NOT_EXIST(
             "BUSINESS_TRAIN_NOT_EXIST",
             "车次不存在"
+    ),
+
+    BUSINESS_TRAIN_STATION_INDEX_EXIST(
+            "BUSINESS_TRAIN_STATION_INDEX_EXIST",
+            "该车次的站序已存在"
+    ),
+
+    BUSINESS_TRAIN_STATION_NAME_EXIST(
+            "BUSINESS_TRAIN_STATION_NAME_EXIST",
+            "该车次的站名已存在"
+    ),
+
+    BUSINESS_TRAIN_STATION_NOT_EXIST(
+            "BUSINESS_TRAIN_STATION_NOT_EXIST",
+            "车次车站不存在"
+    ),
+
+    BUSINESS_TRAIN_CARRIAGE_INDEX_EXIST(
+            "BUSINESS_TRAIN_CARRIAGE_INDEX_EXIST",
+            "该车次的厢号已存在"
+    ),
+
+    BUSINESS_TRAIN_CARRIAGE_SEAT_TYPE_INVALID(
+            "BUSINESS_TRAIN_CARRIAGE_SEAT_TYPE_INVALID",
+            "座位类型无效"
+    ),
+
+    BUSINESS_TRAIN_CARRIAGE_NOT_EXIST(
+            "BUSINESS_TRAIN_CARRIAGE_NOT_EXIST",
+            "火车车厢不存在"
     );
 
     private final String code;

@@ -23,7 +23,8 @@ public class CodeGenerator {
     private static final String JDBC_USERNAME =
             System.getenv().getOrDefault("DB_USERNAME", "oceana_dev");
     private static final String MODULE = "business";
-    private static final String[] TABLES = {"train"};
+    private static final String FEATURE = "traincarriage";
+    private static final String[] TABLES = {"train_carriage"};
 
     private CodeGenerator() {
     }
@@ -32,7 +33,7 @@ public class CodeGenerator {
         Path projectRoot = resolveProjectRoot();
         Path javaOutput = projectRoot.resolve(MODULE + "/src/main/java");
         Path xmlOutput = projectRoot.resolve(
-                MODULE + "/src/main/resources/mapper"
+                MODULE + "/src/main/resources/mapper/" + FEATURE
         );
 
         DataSourceConfig.Builder dataSource = new DataSourceConfig.Builder(
@@ -47,7 +48,9 @@ public class CodeGenerator {
                         .disableOpenDir()
                         .outputDir(javaOutput.toString()))
                 .packageConfig(builder -> builder
-                        .parent("com.gjq.train." + MODULE)
+                        .parent(
+                                "com.gjq.train." + MODULE + "." + FEATURE
+                        )
                         .entity("entity")
                         .mapper("mapper")
                         .service("service")

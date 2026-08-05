@@ -7,7 +7,12 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.core.env.Environment;
 
-@MapperScan("com.gjq.train.business.mapper")
+@MapperScan({
+        "com.gjq.train.business.station.mapper",
+        "com.gjq.train.business.train.mapper",
+        "com.gjq.train.business.trainstation.mapper",
+        "com.gjq.train.business.traincarriage.mapper"
+})
 @SpringBootApplication(scanBasePackages = "com.gjq.train")
 public class BusinessApplication {
 

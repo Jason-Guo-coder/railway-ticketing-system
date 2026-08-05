@@ -161,7 +161,7 @@
 import { onMounted, reactive, ref } from 'vue'
 import { notification } from 'ant-design-vue'
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons-vue'
-import { queryStationList } from '@/api/station'
+import { queryAllStations } from '@/api/station'
 import {
   deleteTrain,
   queryTrainList,
@@ -233,10 +233,9 @@ function formatTime(value) {
 
 async function loadStationOptions() {
   try {
-    // ponytail: 学习阶段车站不超过100个；超过后改为服务端关键字搜索。
-    const data = await queryStationList({ page: 1, size: 100 })
+    const data = await queryAllStations()
     if (data.success) {
-      stationOptions.value = data.content?.list || []
+      stationOptions.value = data.content || []
     }
   } catch (error) {
     notification.error({

@@ -15,3 +15,7 @@ export function updateTrain(data) {
 export function queryTrainList(params) {
   return request.get('/business/admin/train/query-list', { params })
 }
+
+export function queryAllTrains() {
+  return request.get('/business/admin/train/query-all')
+}

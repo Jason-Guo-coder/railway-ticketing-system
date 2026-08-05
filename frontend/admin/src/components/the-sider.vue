@@ -33,6 +33,18 @@
           <span>车次管理</span>
         </router-link>
       </a-menu-item>
+      <a-menu-item key="/base/train-station">
+        <router-link to="/base/train-station">
+          <NodeIndexOutlined />
+          <span>车次车站</span>
+        </router-link>
+      </a-menu-item>
+      <a-menu-item key="/base/train-carriage">
+        <router-link to="/base/train-carriage">
+          <AppstoreOutlined />
+          <span>车厢管理</span>
+        </router-link>
+      </a-menu-item>
     </a-menu>
   </a-layout-sider>
 </template>
@@ -40,10 +52,12 @@
 <script setup>
 import { ref, watch } from 'vue'
 import {
+  AppstoreOutlined,
   CarOutlined,
   EnvironmentOutlined,
   HomeOutlined,
   InfoCircleOutlined,
+  NodeIndexOutlined,
 } from '@ant-design/icons-vue'
 import { useRoute } from 'vue-router'
 

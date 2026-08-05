@@ -45,6 +45,12 @@
           <span>车厢管理</span>
         </router-link>
       </a-menu-item>
+      <a-menu-item key="/base/train-seat">
+        <router-link to="/base/train-seat">
+          <TableOutlined />
+          <span>座位管理</span>
+        </router-link>
+      </a-menu-item>
     </a-menu>
   </a-layout-sider>
 </template>
@@ -58,6 +64,7 @@ import {
   HomeOutlined,
   InfoCircleOutlined,
   NodeIndexOutlined,
+  TableOutlined,
 } from '@ant-design/icons-vue'
 import { useRoute } from 'vue-router'
 

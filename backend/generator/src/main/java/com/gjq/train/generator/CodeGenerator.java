@@ -23,8 +23,8 @@ public class CodeGenerator {
     private static final String JDBC_USERNAME =
             System.getenv().getOrDefault("DB_USERNAME", "oceana_dev");
     private static final String MODULE = "business";
-    private static final String FEATURE = "traincarriage";
-    private static final String[] TABLES = {"train_carriage"};
+    private static final String FEATURE = "trainseat";
+    private static final String[] TABLES = {"train_seat"};
 
     private CodeGenerator() {
     }

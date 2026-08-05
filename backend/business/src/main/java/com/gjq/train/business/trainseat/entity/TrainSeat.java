@@ -1,4 +1,4 @@
-package com.gjq.train.business.traincarriage.entity;
+package com.gjq.train.business.trainseat.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -10,7 +10,7 @@ import lombok.Setter;
 
 /**
  * <p>
- * 火车车厢
+ * 座位
  * </p>
  *
  * @author 郭建泉
@@ -18,8 +18,8 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@TableName("train_carriage")
-public class TrainCarriage {
+@TableName("train_seat")
+public class TrainSeat {
 
     /**
      * id
@@ -34,10 +34,22 @@ public class TrainCarriage {
     private String trainCode;
 
     /**
-     * 厢号
+     * 厢序
      */
-    @TableField("`index`")
-    private Integer index;
+    @TableField("carriage_index")
+    private Integer carriageIndex;
+
+    /**
+     * 排号|01, 02
+     */
+    @TableField("`row`")
+    private String row;
+
+    /**
+     * 列号|枚举[SeatColEnum]
+     */
+    @TableField("col")
+    private String col;
 
     /**
      * 座位类型|枚举[SeatTypeEnum]
@@ -46,22 +58,10 @@ public class TrainCarriage {
     private String seatType;
 
     /**
-     * 座位数
+     * 同车厢座序
      */
-    @TableField("seat_count")
-    private Integer seatCount;
-
-    /**
-     * 排数
-     */
-    @TableField("`row_count`")
-    private Integer rowCount;
-
-    /**
-     * 列数
-     */
-    @TableField("col_count")
-    private Integer columnCount;
+    @TableField("carriage_seat_index")
+    private Integer carriageSeatIndex;
 
     /**
      * 新增时间

@@ -10,6 +10,7 @@ import com.gjq.train.business.trainseat.req.TrainSeatQueryReq;
 import com.gjq.train.business.trainseat.req.TrainSeatSaveReq;
 import com.gjq.train.business.trainseat.req.TrainSeatUpdateReq;
 import com.gjq.train.common.exception.BusinessException;
+import com.gjq.train.common.exception.BusinessExceptionEnum;
 import com.gjq.train.common.resp.PageResp;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -176,6 +177,24 @@ class TrainSeatServiceImplTests {
         assertEquals(1, seats.get(0).getCarriageSeatIndex());
         assertEquals(1, seats.get(4).getCarriageSeatIndex());
         assertEquals("01", seats.get(0).getRow());
+    }
+
+    @Test
+    void shouldRejectGeneratingSeatsWithoutCarriage() {
+        when(trainCarriageService.listByTrainCode("G1"))
+                .thenReturn(List.of());
+
+        BusinessException exception = assertThrows(
+                BusinessException.class,
+                () -> trainSeatService.generateByTrainCode("G1")
+        );
+
+        assertEquals(
+                BusinessExceptionEnum.BUSINESS_TRAIN_CARRIAGE_EMPTY,
+                exception.getExceptionEnum()
+        );
+        verify(trainSeatMapper, never()).delete(any(Wrapper.class));
+        verify(trainSeatMapper, never()).insert(any(TrainSeat.class));
     }
 
     private TrainSeatSaveReq saveRequest() {

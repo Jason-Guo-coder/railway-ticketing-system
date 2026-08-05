@@ -85,6 +85,11 @@ public enum BusinessExceptionEnum {
             "火车车厢不存在"
     ),
 
+    BUSINESS_TRAIN_CARRIAGE_EMPTY(
+            "BUSINESS_TRAIN_CARRIAGE_EMPTY",
+            "请先为该车次维护车厢信息"
+    ),
+
     BUSINESS_TRAIN_SEAT_LOCATION_EXIST(
             "BUSINESS_TRAIN_SEAT_LOCATION_EXIST",
             "该车厢的座位位置已存在"

@@ -141,36 +141,55 @@ public class TrainSeatServiceImpl
     @Override
     @Transactional
     public void generateByTrainCode(String trainCode) {
-        //1. 清空当前车次原有座位，避免重复生成
+        //① 查询车厢，没有车厢时不能生成座位
+        List<TrainCarriage> carriages =
+                trainCarriageService.listByTrainCode(trainCode);
+        if (carriages.isEmpty()) {
+            throw new BusinessException(
+                    BusinessExceptionEnum.BUSINESS_TRAIN_CARRIAGE_EMPTY
+            );
+        }
+
+        //② 清空当前车次原有座位，避免重复生成
         trainSeatMapper.delete(
                 new LambdaQueryWrapper<TrainSeat>()
                         .eq(TrainSeat::getTrainCode, trainCode)
         );
 
-        //2. 按厢号查询当前车次的全部车厢
-        List<TrainCarriage> carriages =
-                trainCarriageService.listByTrainCode(trainCode);
+        //③ 统一生成时间，保证本次生成的座位时间一致
         LocalDateTime now = LocalDateTime.now();
 
-        //3. 根据每节车厢的排数和座位类型生成座位
+        //④ 根据每节车厢的排数和座位类型生成座位
         for (TrainCarriage carriage : carriages) {
-            List<String> columns = SeatColEnum.columnsFor(
-                    carriage.getSeatType()
-            );
-            int carriageSeatIndex = 1;
-            for (int row = 1; row <= carriage.getRowCount(); row++) {
-                for (String column : columns) {
-                    TrainSeat trainSeat = new TrainSeat();
-                    trainSeat.setTrainCode(trainCode);
-                    trainSeat.setCarriageIndex(carriage.getIndex());
-                    trainSeat.setRow(String.format("%02d", row));
-                    trainSeat.setCol(column);
-                    trainSeat.setSeatType(carriage.getSeatType());
-                    trainSeat.setCarriageSeatIndex(carriageSeatIndex++);
-                    trainSeat.setCreateTime(now);
-                    trainSeat.setUpdateTime(now);
-                    trainSeatMapper.insert(trainSeat);
-                }
+            generateCarriageSeats(trainCode, carriage, now);
+        }
+    }
+
+    private void generateCarriageSeats(
+            String trainCode,
+            TrainCarriage carriage,
+            LocalDateTime now
+    ) {
+        //① 根据座位类型获取列号，例如二等座为A、B、C、D、F
+        List<String> columns = SeatColEnum.columnsFor(carriage.getSeatType());
+        int seatIndex = 1;
+
+        //② 从第一排开始，逐排生成当前车厢的座位
+        for (int row = 1; row <= carriage.getRowCount(); row++) {
+            String rowNumber = String.format("%02d", row);
+
+            //③ 遍历当前排的所有列，每个排号和列号组成一个座位
+            for (String column : columns) {
+                TrainSeat seat = new TrainSeat();
+                seat.setTrainCode(trainCode);
+                seat.setCarriageIndex(carriage.getIndex());
+                seat.setRow(rowNumber);
+                seat.setCol(column);
+                seat.setSeatType(carriage.getSeatType());
+                seat.setCarriageSeatIndex(seatIndex++);
+                seat.setCreateTime(now);
+                seat.setUpdateTime(now);
+                trainSeatMapper.insert(seat);
             }
         }
     }

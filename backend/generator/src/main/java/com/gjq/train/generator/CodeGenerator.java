@@ -16,21 +16,24 @@ public class CodeGenerator {
 
     private static final String JDBC_URL = System.getenv().getOrDefault(
             "DB_URL",
-            "jdbc:mysql://124.223.55.166:3306/railway-ticketing-system"
+            "jdbc:mysql://124.223.55.166:3306/railway_ticketing_system"
                     + "?useSSL=false&allowPublicKeyRetrieval=true"
                     + "&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8"
     );
     private static final String JDBC_USERNAME =
             System.getenv().getOrDefault("DB_USERNAME", "oceana_dev");
-    private static final String[] TABLES = {"passenger"};
+    private static final String MODULE = "business";
+    private static final String[] TABLES = {"train"};
 
     private CodeGenerator() {
     }
 
     public static void main(String[] args) {
         Path projectRoot = resolveProjectRoot();
-        Path javaOutput = projectRoot.resolve("member/src/main/java");
-        Path xmlOutput = projectRoot.resolve("member/src/main/resources/mapper");
+        Path javaOutput = projectRoot.resolve(MODULE + "/src/main/java");
+        Path xmlOutput = projectRoot.resolve(
+                MODULE + "/src/main/resources/mapper"
+        );
 
         DataSourceConfig.Builder dataSource = new DataSourceConfig.Builder(
                 JDBC_URL,
@@ -44,7 +47,7 @@ public class CodeGenerator {
                         .disableOpenDir()
                         .outputDir(javaOutput.toString()))
                 .packageConfig(builder -> builder
-                        .parent("com.gjq.train.member")
+                        .parent("com.gjq.train." + MODULE)
                         .entity("entity")
                         .mapper("mapper")
                         .service("service")

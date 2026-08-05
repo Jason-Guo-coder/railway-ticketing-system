@@ -38,4 +38,28 @@ public final class JwtUtil {
                 secret.getBytes(StandardCharsets.UTF_8)
         );
     }
+
+    public static String createAdminToken(
+            String username,
+            String secret
+    ) {
+        DateTime now = DateTime.now();
+        Map<String, Object> payload = new HashMap<>();
+
+        // 设置签发、生效和过期时间
+        payload.put(JWTPayload.ISSUED_AT, now);
+        payload.put(JWTPayload.NOT_BEFORE, now);
+        payload.put(
+                JWTPayload.EXPIRES_AT,
+                now.offsetNew(DateField.HOUR, 1)
+        );
+
+        // 保存管理员身份，供Business模块进行权限校验
+        payload.put("username", username);
+        payload.put("role", "admin");
+        return JWTUtil.createToken(
+                payload,
+                secret.getBytes(StandardCharsets.UTF_8)
+        );
+    }
 }

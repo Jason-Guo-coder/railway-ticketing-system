@@ -52,6 +52,18 @@ class LoginMemberFilterTests {
     }
 
     @Test
+    void shouldAllowAdminLoginWithoutToken() {
+        MockServerWebExchange exchange = exchange(
+                MockServerHttpRequest.post("/business/admin/login").build()
+        );
+        AtomicBoolean called = new AtomicBoolean();
+
+        filter.filter(exchange, successfulChain(called)).block();
+
+        assertTrue(called.get());
+    }
+
+    @Test
     void shouldRejectPassengerSaveWithoutToken() {
         MockServerWebExchange exchange = exchange(
                 MockServerHttpRequest.post("/member/passenger/save").build()

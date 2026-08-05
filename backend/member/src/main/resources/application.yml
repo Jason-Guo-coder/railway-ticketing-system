@@ -7,7 +7,7 @@ spring:
 
   # Member 模块数据库连接配置
   datasource:
-    url: 'jdbc:mysql://124.223.55.166:3306/railway-ticketing-system?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8'
+    url: 'jdbc:mysql://124.223.55.166:3306/railway_ticketing_system?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8'
     username: oceana_dev
     password: '${DB_PASSWORD}'
     driver-class-name: com.mysql.cj.jdbc.Driver

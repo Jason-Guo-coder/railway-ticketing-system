@@ -1,0 +1,14 @@
+package com.gjq.train.business.req;
+
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
+
+@Data
+public class AdminLoginReq {
+
+    @NotBlank(message = "管理员账号不能为空")
+    private String username;
+
+    @NotBlank(message = "管理员密码不能为空")
+    private String password;
+}

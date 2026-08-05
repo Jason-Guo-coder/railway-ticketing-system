@@ -16,6 +16,7 @@
     <modules>
         <module>common</module>
         <module>member</module>
+        <module>business</module>
         <module>gateway</module>
         <module>generator</module>
     </modules>

@@ -30,7 +30,8 @@ public class LoginMemberFilter implements GlobalFilter, Ordered {
 
     private static final Set<String> PUBLIC_PATHS = Set.of(
             "/member/member/login",
-            "/member/member/register"
+            "/member/member/register",
+            "/business/admin/login"
     );
 
     private static final byte[] UNAUTHORIZED_BODY = (

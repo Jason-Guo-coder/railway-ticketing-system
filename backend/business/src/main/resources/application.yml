@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: business
+
+  main:
+    banner-mode: off
+
+  # Business 模块数据库连接配置
+  datasource:
+    url: 'jdbc:mysql://124.223.55.166:3306/railway_ticketing_system?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8'
+    username: oceana_dev
+    password: '${DB_PASSWORD}'
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+server:
+  port: 8002
+  servlet:
+    context-path: /business
+
+jwt:
+  secret: '${JWT_SECRET}'
+
+# 学习项目暂不建立管理员表，可通过环境变量覆盖默认账号
+admin:
+  username: '${ADMIN_USERNAME:admin}'
+  password: '${ADMIN_PASSWORD:admin123}'
+
+mybatis-plus:
+  global-config:
+    banner: false
+
+logging:
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss.SSS} [%X{LOG_ID}] %-5level %logger{36} - %msg%n'
+  level:
+    root: WARN
+    com.gjq.train: INFO

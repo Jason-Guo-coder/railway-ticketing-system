@@ -14,6 +14,10 @@ spring:
           uri: http://127.0.0.1:8001
           predicates:
             - Path=/member/**
+        - id: business
+          uri: http://127.0.0.1:8002
+          predicates:
+            - Path=/business/**
 
 # 网关服务端口
 server:

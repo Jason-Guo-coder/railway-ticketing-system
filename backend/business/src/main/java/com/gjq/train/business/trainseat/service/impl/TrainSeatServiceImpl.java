@@ -4,7 +4,9 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.gjq.train.business.traincarriage.entity.TrainCarriage;
 import com.gjq.train.business.traincarriage.enums.SeatTypeEnum;
+import com.gjq.train.business.traincarriage.service.TrainCarriageService;
 import com.gjq.train.business.trainseat.entity.TrainSeat;
 import com.gjq.train.business.trainseat.enums.SeatColEnum;
 import com.gjq.train.business.trainseat.mapper.TrainSeatMapper;
@@ -18,6 +20,7 @@ import com.gjq.train.common.exception.BusinessExceptionEnum;
 import com.gjq.train.common.resp.PageResp;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
@@ -38,6 +41,9 @@ public class TrainSeatServiceImpl
 
     @Resource
     private TrainSeatMapper trainSeatMapper;
+
+    @Resource
+    private TrainCarriageService trainCarriageService;
 
     @Override
     public void save(TrainSeatSaveReq request) {
@@ -130,6 +136,43 @@ public class TrainSeatServiceImpl
         response.setTotal(trainSeatPage.getTotal());
         response.setList(list);
         return response;
+    }
+
+    @Override
+    @Transactional
+    public void generateByTrainCode(String trainCode) {
+        //1. 清空当前车次原有座位，避免重复生成
+        trainSeatMapper.delete(
+                new LambdaQueryWrapper<TrainSeat>()
+                        .eq(TrainSeat::getTrainCode, trainCode)
+        );
+
+        //2. 按厢号查询当前车次的全部车厢
+        List<TrainCarriage> carriages =
+                trainCarriageService.listByTrainCode(trainCode);
+        LocalDateTime now = LocalDateTime.now();
+
+        //3. 根据每节车厢的排数和座位类型生成座位
+        for (TrainCarriage carriage : carriages) {
+            List<String> columns = SeatColEnum.columnsFor(
+                    carriage.getSeatType()
+            );
+            int carriageSeatIndex = 1;
+            for (int row = 1; row <= carriage.getRowCount(); row++) {
+                for (String column : columns) {
+                    TrainSeat trainSeat = new TrainSeat();
+                    trainSeat.setTrainCode(trainCode);
+                    trainSeat.setCarriageIndex(carriage.getIndex());
+                    trainSeat.setRow(String.format("%02d", row));
+                    trainSeat.setCol(column);
+                    trainSeat.setSeatType(carriage.getSeatType());
+                    trainSeat.setCarriageSeatIndex(carriageSeatIndex++);
+                    trainSeat.setCreateTime(now);
+                    trainSeat.setUpdateTime(now);
+                    trainSeatMapper.insert(trainSeat);
+                }
+            }
+        }
     }
 
     private void checkSeatTypeAndCol(String seatType, String col) {

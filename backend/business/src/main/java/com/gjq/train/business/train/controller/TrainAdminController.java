@@ -5,6 +5,7 @@ import com.gjq.train.business.train.req.TrainSaveReq;
 import com.gjq.train.business.train.req.TrainUpdateReq;
 import com.gjq.train.business.train.resp.TrainQueryResp;
 import com.gjq.train.business.train.service.TrainService;
+import com.gjq.train.business.trainseat.service.TrainSeatService;
 import com.gjq.train.common.resp.PageResp;
 import com.gjq.train.common.resp.Result;
 import jakarta.annotation.Resource;
@@ -25,6 +26,9 @@ public class TrainAdminController {
 
     @Resource
     private TrainService trainService;
+
+    @Resource
+    private TrainSeatService trainSeatService;
 
     @PostMapping("/save")
     public Result<Void> save(@Valid @RequestBody TrainSaveReq request) {
@@ -54,5 +58,11 @@ public class TrainAdminController {
     @GetMapping("/query-all")
     public Result<List<TrainQueryResp>> queryAll() {
         return Result.success(trainService.queryAll());
+    }
+
+    @PostMapping("/gen-seat/{trainCode}")
+    public Result<Void> generateSeat(@PathVariable String trainCode) {
+        trainSeatService.generateByTrainCode(trainCode);
+        return Result.success();
     }
 }

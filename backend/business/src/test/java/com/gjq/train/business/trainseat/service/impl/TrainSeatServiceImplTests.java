@@ -3,6 +3,8 @@ package com.gjq.train.business.trainseat.service.impl;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gjq.train.business.trainseat.entity.TrainSeat;
+import com.gjq.train.business.traincarriage.entity.TrainCarriage;
+import com.gjq.train.business.traincarriage.service.TrainCarriageService;
 import com.gjq.train.business.trainseat.mapper.TrainSeatMapper;
 import com.gjq.train.business.trainseat.req.TrainSeatQueryReq;
 import com.gjq.train.business.trainseat.req.TrainSeatSaveReq;
@@ -12,6 +14,7 @@ import com.gjq.train.common.resp.PageResp;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -22,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -30,6 +34,9 @@ class TrainSeatServiceImplTests {
 
     @Mock
     private TrainSeatMapper trainSeatMapper;
+
+    @Mock
+    private TrainCarriageService trainCarriageService;
 
     @InjectMocks
     private TrainSeatServiceImpl trainSeatService;
@@ -147,6 +154,30 @@ class TrainSeatServiceImplTests {
         assertEquals(1, response.getList().size());
     }
 
+    @Test
+    void shouldRegenerateSeatsForEveryCarriage() {
+        TrainCarriage firstClass = carriage(1, "1", 1);
+        TrainCarriage secondClass = carriage(2, "2", 1);
+        when(trainCarriageService.listByTrainCode("G1"))
+                .thenReturn(List.of(firstClass, secondClass));
+
+        trainSeatService.generateByTrainCode("G1");
+
+        verify(trainSeatMapper).delete(any(Wrapper.class));
+        verify(trainCarriageService).listByTrainCode("G1");
+        ArgumentCaptor<TrainSeat> captor =
+                ArgumentCaptor.forClass(TrainSeat.class);
+        verify(trainSeatMapper, times(9)).insert(captor.capture());
+        List<TrainSeat> seats = captor.getAllValues();
+        assertEquals(List.of("A", "C", "D", "F"), seats.subList(0, 4)
+                .stream().map(TrainSeat::getCol).toList());
+        assertEquals(List.of("A", "B", "C", "D", "F"), seats.subList(4, 9)
+                .stream().map(TrainSeat::getCol).toList());
+        assertEquals(1, seats.get(0).getCarriageSeatIndex());
+        assertEquals(1, seats.get(4).getCarriageSeatIndex());
+        assertEquals("01", seats.get(0).getRow());
+    }
+
     private TrainSeatSaveReq saveRequest() {
         TrainSeatSaveReq request = new TrainSeatSaveReq();
         request.setTrainCode("G1");
@@ -168,5 +199,18 @@ class TrainSeatServiceImplTests {
         request.setSeatType("2");
         request.setCarriageSeatIndex(3);
         return request;
+    }
+
+    private TrainCarriage carriage(
+            int index,
+            String seatType,
+            int rowCount
+    ) {
+        TrainCarriage carriage = new TrainCarriage();
+        carriage.setTrainCode("G1");
+        carriage.setIndex(index);
+        carriage.setSeatType(seatType);
+        carriage.setRowCount(rowCount);
+        return carriage;
     }
 }

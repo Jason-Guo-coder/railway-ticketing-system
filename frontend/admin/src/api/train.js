@@ -19,3 +19,7 @@ export function queryTrainList(params) {
 export function queryAllTrains() {
   return request.get('/business/admin/train/query-all')
 }
+
+export function generateTrainSeats(trainCode) {
+  return request.post(`/business/admin/train/gen-seat/${trainCode}`)
+}

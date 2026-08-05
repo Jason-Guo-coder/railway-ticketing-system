@@ -134,6 +134,15 @@ public class TrainCarriageServiceImpl
         return response;
     }
 
+    @Override
+    public List<TrainCarriage> listByTrainCode(String trainCode) {
+        return trainCarriageMapper.selectList(
+                new LambdaQueryWrapper<TrainCarriage>()
+                        .eq(TrainCarriage::getTrainCode, trainCode)
+                        .orderByAsc(TrainCarriage::getIndex)
+        );
+    }
+
     private SeatTypeEnum requireSeatType(String code) {
         SeatTypeEnum seatType = SeatTypeEnum.fromCode(code);
         if (seatType == null) {

@@ -1,6 +1,7 @@
 package com.gjq.train.business.traincarriage.req;
 
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -22,5 +23,6 @@ public class TrainCarriageSaveReq {
 
     @NotNull(message = "排数不能为空")
     @Min(value = 1, message = "排数必须大于0")
+    @Max(value = 99, message = "排数不能超过99")
     private Integer rowCount;
 }

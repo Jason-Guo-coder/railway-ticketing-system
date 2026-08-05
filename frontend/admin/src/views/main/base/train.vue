@@ -45,6 +45,19 @@
               <a-popconfirm
                 cancel-text="取消"
                 ok-text="确认"
+                title="将删除该车次已有座位并重新生成，确认继续吗？"
+                @confirm="generateSeats(record)"
+              >
+                <a-button
+                  :loading="generatingTrainCode === record.code"
+                  type="link"
+                >
+                  生成座位
+                </a-button>
+              </a-popconfirm>
+              <a-popconfirm
+                cancel-text="取消"
+                ok-text="确认"
                 title="删除后不可恢复，确认删除吗？"
                 @confirm="removeTrain(record.id)"
               >
@@ -95,22 +108,11 @@
           </a-select>
         </a-form-item>
         <a-form-item label="始发站" name="start">
-          <a-select
-            v-model:value="train.start"
-            option-filter-prop="label"
+          <StationSelect
+            v-model="train.start"
             placeholder="请选择始发站"
-            show-search
             @change="selectStart"
-          >
-            <a-select-option
-              v-for="item in stationOptions"
-              :key="item.id"
-              :label="`${item.name} ${item.namePinyin}`"
-              :value="item.name"
-            >
-              {{ item.name }}
-            </a-select-option>
-          </a-select>
+          />
         </a-form-item>
         <a-form-item label="始发站拼音" name="startPinyin">
           <a-input v-model:value="train.startPinyin" disabled />
@@ -124,22 +126,11 @@
           />
         </a-form-item>
         <a-form-item label="终点站" name="end">
-          <a-select
-            v-model:value="train.end"
-            option-filter-prop="label"
+          <StationSelect
+            v-model="train.end"
             placeholder="请选择终点站"
-            show-search
             @change="selectEnd"
-          >
-            <a-select-option
-              v-for="item in stationOptions"
-              :key="item.id"
-              :label="`${item.name} ${item.namePinyin}`"
-              :value="item.name"
-            >
-              {{ item.name }}
-            </a-select-option>
-          </a-select>
+          />
         </a-form-item>
         <a-form-item label="终点站拼音" name="endPinyin">
           <a-input v-model:value="train.endPinyin" disabled />
@@ -161,9 +152,10 @@
 import { onMounted, reactive, ref } from 'vue'
 import { notification } from 'ant-design-vue'
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons-vue'
-import { queryAllStations } from '@/api/station'
+import StationSelect from '@/components/station-select.vue'
 import {
   deleteTrain,
+  generateTrainSeats,
   queryTrainList,
   saveTrain,
   updateTrain,
@@ -178,8 +170,8 @@ const formRef = ref()
 const modalVisible = ref(false)
 const saving = ref(false)
 const loading = ref(false)
+const generatingTrainCode = ref()
 const trains = ref([])
-const stationOptions = ref([])
 const pagination = reactive({
   current: 1,
   pageSize: 10,
@@ -220,7 +212,7 @@ const columns = [
   },
   { title: '终点站', dataIndex: 'end', key: 'end', width: 140 },
   { title: '到站时间', dataIndex: 'endTime', key: 'endTime', width: 130 },
-  { title: '操作', key: 'operation', fixed: 'right', width: 140 },
+  { title: '操作', key: 'operation', fixed: 'right', width: 230 },
 ]
 
 function trainTypeName(code) {
@@ -229,19 +221,6 @@ function trainTypeName(code) {
 
 function formatTime(value) {
   return value ? value.slice(0, 5) : '-'
-}
-
-async function loadStationOptions() {
-  try {
-    const data = await queryAllStations()
-    if (data.success) {
-      stationOptions.value = data.content || []
-    }
-  } catch (error) {
-    notification.error({
-      description: error.response?.data?.message || '车站列表加载失败',
-    })
-  }
 }
 
 async function loadTrains(
@@ -268,13 +247,11 @@ async function loadTrains(
   }
 }
 
-function selectStart(name) {
-  const station = stationOptions.value.find((item) => item.name === name)
+function selectStart(station) {
   train.startPinyin = station?.namePinyin || ''
 }
 
-function selectEnd(name) {
-  const station = stationOptions.value.find((item) => item.name === name)
+function selectEnd(station) {
   train.endPinyin = station?.namePinyin || ''
 }
 
@@ -333,6 +310,24 @@ async function removeTrain(id) {
   }
 }
 
+async function generateSeats(record) {
+  generatingTrainCode.value = record.code
+  try {
+    const data = await generateTrainSeats(record.code)
+    if (data.success) {
+      notification.success({ description: '座位生成成功' })
+    } else {
+      notification.error({ description: data.message || '座位生成失败' })
+    }
+  } catch (error) {
+    notification.error({
+      description: error.response?.data?.message || '座位生成失败，请稍后再试',
+    })
+  } finally {
+    generatingTrainCode.value = undefined
+  }
+}
+
 async function save() {
   try {
     await formRef.value.validate()
@@ -365,7 +360,6 @@ async function save() {
 }
 
 onMounted(() => {
-  loadStationOptions()
   loadTrains(1, pagination.pageSize)
 })
 </script>

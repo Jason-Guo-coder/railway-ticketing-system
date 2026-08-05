@@ -8,6 +8,8 @@ import com.gjq.train.business.traincarriage.req.TrainCarriageUpdateReq;
 import com.gjq.train.business.traincarriage.resp.TrainCarriageQueryResp;
 import com.gjq.train.common.resp.PageResp;
 
+import java.util.List;
+
 /**
  * <p>
  * 火车车厢 服务类
@@ -25,4 +27,6 @@ public interface TrainCarriageService extends IService<TrainCarriage> {
     void update(TrainCarriageUpdateReq request);
 
     PageResp<TrainCarriageQueryResp> queryList(TrainCarriageQueryReq request);
+
+    List<TrainCarriage> listByTrainCode(String trainCode);
 }

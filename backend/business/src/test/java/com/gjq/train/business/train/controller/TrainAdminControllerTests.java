@@ -5,6 +5,7 @@ import com.gjq.train.business.train.req.TrainSaveReq;
 import com.gjq.train.business.train.req.TrainUpdateReq;
 import com.gjq.train.business.train.resp.TrainQueryResp;
 import com.gjq.train.business.train.service.TrainService;
+import com.gjq.train.business.trainseat.service.TrainSeatService;
 import com.gjq.train.common.controller.ControllerExceptionHandler;
 import com.gjq.train.common.resp.PageResp;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,11 +34,19 @@ class TrainAdminControllerTests {
 
     private TrainService trainService;
 
+    private TrainSeatService trainSeatService;
+
     @BeforeEach
     void setUp() {
         trainService = mock(TrainService.class);
+        trainSeatService = mock(TrainSeatService.class);
         TrainAdminController controller = new TrainAdminController();
         ReflectionTestUtils.setField(controller, "trainService", trainService);
+        ReflectionTestUtils.setField(
+                controller,
+                "trainSeatService",
+                trainSeatService
+        );
         mockMvc = MockMvcBuilders.standaloneSetup(controller)
                 .setControllerAdvice(new ControllerExceptionHandler())
                 .build();
@@ -123,6 +132,15 @@ class TrainAdminControllerTests {
                 .andExpect(jsonPath("$.content[0].code").value("G100"));
 
         verify(trainService).queryAll();
+    }
+
+    @Test
+    void shouldGenerateTrainSeats() throws Exception {
+        mockMvc.perform(post("/admin/train/gen-seat/G100"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true));
+
+        verify(trainSeatService).generateByTrainCode("G100");
     }
 
     private String trainJson(boolean includeId) {

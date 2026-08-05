@@ -19,23 +19,7 @@
     </header>
 
     <div class="query-bar">
-      <a-select
-        v-model:value="query.trainCode"
-        allow-clear
-        option-filter-prop="label"
-        placeholder="请选择车次"
-        show-search
-        style="width: 220px"
-      >
-        <a-select-option
-          v-for="item in trainOptions"
-          :key="item.id"
-          :label="item.code"
-          :value="item.code"
-        >
-          {{ item.code }}
-        </a-select-option>
-      </a-select>
+      <TrainSelect v-model="query.trainCode" width="220px" />
       <a-button type="primary" @click="search">
         <SearchOutlined />
         查询
@@ -95,21 +79,7 @@
         :wrapper-col="{ span: 17 }"
       >
         <a-form-item label="车次编号" name="trainCode">
-          <a-select
-            v-model:value="trainSeat.trainCode"
-            option-filter-prop="label"
-            placeholder="请选择车次"
-            show-search
-          >
-            <a-select-option
-              v-for="item in trainOptions"
-              :key="item.id"
-              :label="item.code"
-              :value="item.code"
-            >
-              {{ item.code }}
-            </a-select-option>
-          </a-select>
+          <TrainSelect v-model="trainSeat.trainCode" />
         </a-form-item>
         <a-form-item label="厢序" name="carriageIndex">
           <a-input-number
@@ -178,7 +148,7 @@ import {
   ReloadOutlined,
   SearchOutlined,
 } from '@ant-design/icons-vue'
-import { queryAllTrains } from '@/api/train'
+import TrainSelect from '@/components/train-select.vue'
 import {
   deleteTrainSeat,
   queryTrainSeatList,
@@ -197,7 +167,6 @@ const modalVisible = ref(false)
 const saving = ref(false)
 const loading = ref(false)
 const trainSeats = ref([])
-const trainOptions = ref([])
 const query = reactive({
   trainCode: undefined,
 })
@@ -254,19 +223,6 @@ const columns = [
 
 function seatTypeName(code) {
   return seatTypes.find((item) => item.code === code)?.description || '-'
-}
-
-async function loadTrainOptions() {
-  try {
-    const data = await queryAllTrains()
-    if (data.success) {
-      trainOptions.value = data.content || []
-    }
-  } catch (error) {
-    notification.error({
-      description: error.response?.data?.message || '车次列表加载失败',
-    })
-  }
 }
 
 async function loadTrainSeats(
@@ -397,7 +353,6 @@ async function save() {
 }
 
 onMounted(() => {
-  loadTrainOptions()
   loadTrainSeats(1, pagination.pageSize)
 })
 </script>

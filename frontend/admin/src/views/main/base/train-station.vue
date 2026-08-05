@@ -20,22 +20,11 @@
 
     <section class="train-station-table">
       <div class="query-bar">
-        <a-select
-          v-model:value="query.trainCode"
-          allow-clear
-          option-filter-prop="label"
+        <TrainSelect
+          v-model="query.trainCode"
           placeholder="全部车次"
-          show-search
-        >
-          <a-select-option
-            v-for="item in trainOptions"
-            :key="item.id"
-            :label="`${item.code} ${item.start}-${item.end}`"
-            :value="item.code"
-          >
-            {{ item.code }} · {{ item.start }} → {{ item.end }}
-          </a-select-option>
-        </a-select>
+          width="220px"
+        />
         <a-button type="primary" @click="search">
           <SearchOutlined />
           查询
@@ -95,21 +84,7 @@
         :wrapper-col="{ span: 18 }"
       >
         <a-form-item label="车次编号" name="trainCode">
-          <a-select
-            v-model:value="trainStation.trainCode"
-            option-filter-prop="label"
-            placeholder="请选择车次"
-            show-search
-          >
-            <a-select-option
-              v-for="item in trainOptions"
-              :key="item.id"
-              :label="`${item.code} ${item.start}-${item.end}`"
-              :value="item.code"
-            >
-              {{ item.code }} · {{ item.start }} → {{ item.end }}
-            </a-select-option>
-          </a-select>
+          <TrainSelect v-model="trainStation.trainCode" />
         </a-form-item>
         <a-form-item label="站序" name="index">
           <a-input-number
@@ -121,22 +96,10 @@
           />
         </a-form-item>
         <a-form-item label="站名" name="name">
-          <a-select
-            v-model:value="trainStation.name"
-            option-filter-prop="label"
-            placeholder="请选择车站"
-            show-search
+          <StationSelect
+            v-model="trainStation.name"
             @change="selectStation"
-          >
-            <a-select-option
-              v-for="item in stationOptions"
-              :key="item.id"
-              :label="`${item.name} ${item.namePinyin}`"
-              :value="item.name"
-            >
-              {{ item.name }}
-            </a-select-option>
-          </a-select>
+          />
         </a-form-item>
         <a-form-item label="站名拼音" name="namePinyin">
           <a-input v-model:value="trainStation.namePinyin" disabled />
@@ -191,8 +154,8 @@ import {
   ReloadOutlined,
   SearchOutlined,
 } from '@ant-design/icons-vue'
-import { queryAllStations } from '@/api/station'
-import { queryAllTrains } from '@/api/train'
+import StationSelect from '@/components/station-select.vue'
+import TrainSelect from '@/components/train-select.vue'
 import {
   deleteTrainStation,
   queryTrainStationList,
@@ -206,8 +169,6 @@ const modalVisible = ref(false)
 const saving = ref(false)
 const loading = ref(false)
 const trainStations = ref([])
-const trainOptions = ref([])
-const stationOptions = ref([])
 const query = reactive({
   trainCode: undefined,
 })
@@ -290,25 +251,6 @@ function formatKm(value) {
     : Number(value).toFixed(2)
 }
 
-async function loadOptions() {
-  try {
-    const [trainData, stationData] = await Promise.all([
-      queryAllTrains(),
-      queryAllStations(),
-    ])
-    if (trainData.success) {
-      trainOptions.value = trainData.content || []
-    }
-    if (stationData.success) {
-      stationOptions.value = stationData.content || []
-    }
-  } catch (error) {
-    notification.error({
-      description: error.response?.data?.message || '基础数据加载失败',
-    })
-  }
-}
-
 async function loadTrainStations(
   page = pagination.current,
   pageSize = pagination.pageSize,
@@ -345,8 +287,7 @@ function handleTableChange(tablePagination) {
   loadTrainStations(tablePagination.current, tablePagination.pageSize)
 }
 
-function selectStation(name) {
-  const station = stationOptions.value.find((item) => item.name === name)
+function selectStation(station) {
   trainStation.namePinyin = station?.namePinyin || ''
 }
 
@@ -434,7 +375,6 @@ async function save() {
 }
 
 onMounted(() => {
-  loadOptions()
   loadTrainStations(1, pagination.pageSize)
 })
 </script>

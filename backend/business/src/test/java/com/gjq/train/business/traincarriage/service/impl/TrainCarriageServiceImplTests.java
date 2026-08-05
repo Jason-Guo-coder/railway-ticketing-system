@@ -155,6 +155,20 @@ class TrainCarriageServiceImplTests {
         assertEquals(1, response.getList().size());
     }
 
+    @Test
+    void shouldListCarriagesByTrainCode() {
+        TrainCarriage carriage = new TrainCarriage();
+        carriage.setTrainCode("G1");
+        when(trainCarriageMapper.selectList(any(Wrapper.class)))
+                .thenReturn(List.of(carriage));
+
+        List<TrainCarriage> result =
+                trainCarriageService.listByTrainCode("G1");
+
+        assertEquals(1, result.size());
+        assertEquals("G1", result.get(0).getTrainCode());
+    }
+
     private TrainCarriageSaveReq saveRequest() {
         TrainCarriageSaveReq request = new TrainCarriageSaveReq();
         request.setTrainCode("G1");

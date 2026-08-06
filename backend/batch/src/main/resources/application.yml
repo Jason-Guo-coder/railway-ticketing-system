@@ -12,6 +12,23 @@ spring:
     password: '${DB_PASSWORD}'
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+  quartz:
+    job-store-type: jdbc
+    jdbc:
+      initialize-schema: never
+    properties:
+      org:
+        quartz:
+          scheduler:
+            instanceName: RailwayBatchScheduler
+            instanceId: AUTO
+          jobStore:
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+            tablePrefix: QRTZ_
+            isClustered: true
+          threadPool:
+            threadCount: 5
+
 server:
   port: 8003
   servlet:
@@ -20,6 +37,9 @@ server:
 mybatis-plus:
   global-config:
     banner: false
+
+jwt:
+  secret: '${JWT_SECRET}'
 
 logging:
   pattern:

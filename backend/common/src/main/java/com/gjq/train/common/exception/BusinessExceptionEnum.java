@@ -113,6 +113,36 @@ public enum BusinessExceptionEnum {
     BUSINESS_TRAIN_SEAT_NOT_EXIST(
             "BUSINESS_TRAIN_SEAT_NOT_EXIST",
             "座位不存在"
+    ),
+
+    // Quartz任务已存在
+    BATCH_JOB_EXIST(
+            "BATCH_JOB_EXIST",
+            "定时任务已存在"
+    ),
+
+    // Quartz任务不存在
+    BATCH_JOB_NOT_EXIST(
+            "BATCH_JOB_NOT_EXIST",
+            "定时任务不存在"
+    ),
+
+    // Quartz任务类不符合Batch模块约定
+    BATCH_JOB_CLASS_INVALID(
+            "BATCH_JOB_CLASS_INVALID",
+            "任务类不存在或不是有效的Quartz任务"
+    ),
+
+    // Quartz Cron表达式格式错误
+    BATCH_JOB_CRON_INVALID(
+            "BATCH_JOB_CRON_INVALID",
+            "Cron表达式格式错误"
+    ),
+
+    // Quartz调度器操作失败
+    BATCH_JOB_SCHEDULER_ERROR(
+            "BATCH_JOB_SCHEDULER_ERROR",
+            "定时任务调度失败"
     );
 
     private final String code;

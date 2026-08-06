@@ -51,6 +51,12 @@
           <span>座位管理</span>
         </router-link>
       </a-menu-item>
+      <a-menu-item key="/batch/job">
+        <router-link to="/batch/job">
+          <ClockCircleOutlined />
+          <span>定时任务</span>
+        </router-link>
+      </a-menu-item>
     </a-menu>
   </a-layout-sider>
 </template>
@@ -60,6 +66,7 @@ import { ref, watch } from 'vue'
 import {
   AppstoreOutlined,
   CarOutlined,
+  ClockCircleOutlined,
   EnvironmentOutlined,
   HomeOutlined,
   InfoCircleOutlined,

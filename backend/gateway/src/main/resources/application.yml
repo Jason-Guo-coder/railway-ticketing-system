@@ -18,6 +18,10 @@ spring:
           uri: http://127.0.0.1:8002
           predicates:
             - Path=/business/**
+        - id: batch
+          uri: http://127.0.0.1:8003
+          predicates:
+            - Path=/batch/**
 
 # 网关服务端口
 server:

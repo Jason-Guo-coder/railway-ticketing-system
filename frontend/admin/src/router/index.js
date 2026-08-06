@@ -49,6 +49,11 @@ const routes = [
         component: () => import('@/views/main/base/train-seat.vue'),
       },
       {
+        path: 'business/daily-train',
+        name: 'daily-train',
+        component: () => import('@/views/main/business/daily-train.vue'),
+      },
+      {
         path: 'batch/job',
         name: 'batch-job',
         component: () => import('@/views/main/batch/job.vue'),

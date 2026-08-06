@@ -55,6 +55,16 @@ public enum BusinessExceptionEnum {
             "车次不存在"
     ),
 
+    BUSINESS_DAILY_TRAIN_DATE_CODE_EXIST(
+            "BUSINESS_DAILY_TRAIN_DATE_CODE_EXIST",
+            "该日期的车次编号已存在"
+    ),
+
+    BUSINESS_DAILY_TRAIN_NOT_EXIST(
+            "BUSINESS_DAILY_TRAIN_NOT_EXIST",
+            "每日车次不存在"
+    ),
+
     BUSINESS_TRAIN_STATION_INDEX_EXIST(
             "BUSINESS_TRAIN_STATION_INDEX_EXIST",
             "该车次的站序已存在"

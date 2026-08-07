@@ -1,5 +1,6 @@
 package com.gjq.train.batch.config;
 
+import com.gjq.train.batch.feign.BusinessFeign;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.jupiter.api.Test;
 import org.quartz.Scheduler;
@@ -13,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * Batch启动测试，确认Quartz、数据源和MyBatis基础设施能够装配。
  */
-@SpringBootTest
+@SpringBootTest(properties = "batch.jobs.initialize=false")
 class BatchApplicationTests {
 
     @Autowired
@@ -25,10 +26,14 @@ class BatchApplicationTests {
     @Autowired
     private SqlSessionFactory sqlSessionFactory;
 
+    @Autowired
+    private BusinessFeign businessFeign;
+
     @Test
     void contextLoads() {
         assertNotNull(scheduler);
         assertNotNull(dataSource);
         assertNotNull(sqlSessionFactory);
+        assertNotNull(businessFeign);
     }
 }

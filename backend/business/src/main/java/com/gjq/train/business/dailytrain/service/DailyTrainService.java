@@ -29,4 +29,6 @@ public interface DailyTrainService extends IService<DailyTrain> {
     PageResp<DailyTrainQueryResp> queryList(DailyTrainQueryReq request);
 
     void generate(LocalDate date);
+
+    void generateIfAbsent(LocalDate date);
 }

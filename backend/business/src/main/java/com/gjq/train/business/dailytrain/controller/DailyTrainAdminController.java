@@ -65,4 +65,14 @@ public class DailyTrainAdminController {
         dailyTrainService.generate(date);
         return Result.success();
     }
+
+    @PostMapping("/gen-daily-if-absent/{date}")
+    public Result<Void> generateIfAbsent(
+            @PathVariable
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate date
+    ) {
+        dailyTrainService.generateIfAbsent(date);
+        return Result.success();
+    }
 }

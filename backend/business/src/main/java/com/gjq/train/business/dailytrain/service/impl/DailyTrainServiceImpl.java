@@ -161,6 +161,26 @@ public class DailyTrainServiceImpl
     @Override
     @Transactional
     public void generate(LocalDate date) {
+        generateData(date);
+    }
+
+    @Override
+    @Transactional
+    public void generateIfAbsent(LocalDate date) {
+        //1. 定时任务只检查目标日期是否已经生成，避免覆盖后续售票状态
+        long count = dailyTrainMapper.selectCount(
+                new LambdaQueryWrapper<DailyTrain>()
+                        .eq(DailyTrain::getDate, date)
+        );
+        if (count > 0) {
+            return;
+        }
+
+        //2. 目标日期没有数据时才执行完整生成流程
+        generateData(date);
+    }
+
+    private void generateData(LocalDate date) {
         //1. 查询全部基础车次
         List<Train> trains = trainService.list(new LambdaQueryWrapper<Train>().orderByAsc(Train::getCode)
         );

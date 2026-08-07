@@ -41,6 +41,14 @@ mybatis-plus:
 jwt:
   secret: '${JWT_SECRET}'
 
+# Batch直接调用Business管理接口，避免定时任务绕行网关
+business:
+  base-url: '${BUSINESS_BASE_URL:http://127.0.0.1:8002/business}'
+
+batch:
+  jobs:
+    initialize: true
+
 logging:
   pattern:
     console: '%d{yyyy-MM-dd HH:mm:ss.SSS} [%X{LOG_ID}] %-5level %logger{36} - %msg%n'

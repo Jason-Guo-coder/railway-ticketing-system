@@ -4,12 +4,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.core.env.Environment;
 
 /**
  * Batch模块启动类，负责启动Quartz任务调度服务和管理接口。
  */
 @SpringBootApplication(scanBasePackages = "com.gjq.train")
+@EnableFeignClients(basePackages = "com.gjq.train.batch.feign")
 public class BatchApplication {
 
     // Batch模块日志记录器

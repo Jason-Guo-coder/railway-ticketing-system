@@ -197,6 +197,31 @@ class DailyTrainServiceImplTests {
                 .generateByTrainCode(date, "G1");
     }
 
+    @Test
+    void shouldSkipScheduledGenerationWhenDateExists() {
+        LocalDate date = LocalDate.of(2026, 8, 8);
+        when(dailyTrainMapper.selectCount(any(Wrapper.class)))
+                .thenReturn(1L);
+
+        dailyTrainService.generateIfAbsent(date);
+
+        verify(trainService, never()).list(any(Wrapper.class));
+        verify(dailyTrainMapper, never()).delete(any(Wrapper.class));
+    }
+
+    @Test
+    void shouldGenerateScheduledDataWhenDateIsAbsent() {
+        LocalDate date = LocalDate.of(2026, 8, 8);
+        when(dailyTrainMapper.selectCount(any(Wrapper.class)))
+                .thenReturn(0L);
+        when(trainService.list(any(Wrapper.class)))
+                .thenReturn(List.of());
+
+        dailyTrainService.generateIfAbsent(date);
+
+        verify(trainService).list(any(Wrapper.class));
+    }
+
     private DailyTrainSaveReq saveRequest() {
         DailyTrainSaveReq request = new DailyTrainSaveReq();
         request.setDate(LocalDate.of(2026, 8, 7));

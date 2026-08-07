@@ -25,6 +25,12 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+        <!-- 提供声明式HTTP服务调用能力 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+
         <!-- 提供Quartz定时调度能力和JDBC任务持久化能力 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

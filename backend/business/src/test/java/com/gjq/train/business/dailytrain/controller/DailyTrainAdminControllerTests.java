@@ -130,6 +130,20 @@ class DailyTrainAdminControllerTests {
         verify(dailyTrainService).generate(LocalDate.of(2026, 8, 8));
     }
 
+    @Test
+    void shouldGenerateDailyDataOnlyWhenAbsent() throws Exception {
+        mockMvc.perform(post(
+                        "/admin/daily-train/"
+                                + "gen-daily-if-absent/2026-08-08"
+                ))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true));
+
+        verify(dailyTrainService).generateIfAbsent(
+                LocalDate.of(2026, 8, 8)
+        );
+    }
+
     private String dailyTrainJson(boolean includeId) {
         String id = includeId ? "\"id\": \"100\"," : "";
         return """

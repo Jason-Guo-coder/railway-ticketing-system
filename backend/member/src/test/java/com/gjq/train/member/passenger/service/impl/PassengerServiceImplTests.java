@@ -1,6 +1,7 @@
 package com.gjq.train.member.passenger.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.AbstractWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gjq.train.common.context.LoginMemberContext;
 import com.gjq.train.common.resp.MemberLoginResp;
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.never;
@@ -100,9 +102,8 @@ class PassengerServiceImplTests {
     }
 
     @Test
-    void shouldQueryPassengerPageByMemberId() {
+    void shouldQueryPassengerPageForCurrentMember() {
         PassengerQueryReq request = new PassengerQueryReq();
-        request.setMemberId(1L);
         request.setPage(2);
         request.setSize(10);
 
@@ -130,13 +131,41 @@ class PassengerServiceImplTests {
         assertEquals(100L, result.getList().get(0).getId());
         ArgumentCaptor<Page<Passenger>> pageCaptor =
                 ArgumentCaptor.forClass(Page.class);
+        ArgumentCaptor<Wrapper<Passenger>> wrapperCaptor =
+                ArgumentCaptor.forClass(Wrapper.class);
         verify(passengerMapper).selectPage(
                 pageCaptor.capture(),
-                any(Wrapper.class)
+                wrapperCaptor.capture()
         );
 
         assertEquals(2, pageCaptor.getValue().getCurrent());
         assertEquals(10, pageCaptor.getValue().getSize());
+        wrapperCaptor.getValue().getSqlSegment();
+        AbstractWrapper<?, ?, ?> queryWrapper =
+                (AbstractWrapper<?, ?, ?>) wrapperCaptor.getValue();
+        assertTrue(queryWrapper.getParamNameValuePairs().containsValue(1L));
+    }
+
+    @Test
+    void shouldQueryAllPassengersForCurrentMember() {
+        Passenger passenger = new Passenger();
+        passenger.setId(100L);
+        passenger.setMemberId(1L);
+        passenger.setName("张三");
+        when(passengerMapper.selectList(any(Wrapper.class)))
+                .thenReturn(List.of(passenger));
+
+        List<PassengerQueryResp> result = passengerService.queryMine();
+
+        assertEquals(1, result.size());
+        assertEquals("张三", result.get(0).getName());
+        ArgumentCaptor<Wrapper<Passenger>> wrapperCaptor =
+                ArgumentCaptor.forClass(Wrapper.class);
+        verify(passengerMapper).selectList(wrapperCaptor.capture());
+        wrapperCaptor.getValue().getSqlSegment();
+        AbstractWrapper<?, ?, ?> queryWrapper =
+                (AbstractWrapper<?, ?, ?>) wrapperCaptor.getValue();
+        assertTrue(queryWrapper.getParamNameValuePairs().containsValue(1L));
     }
 
     private PassengerSaveReq passengerRequest() {

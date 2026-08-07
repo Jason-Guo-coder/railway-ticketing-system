@@ -8,6 +8,8 @@ import com.gjq.train.business.trainseat.req.TrainSeatUpdateReq;
 import com.gjq.train.business.trainseat.resp.TrainSeatQueryResp;
 import com.gjq.train.common.resp.PageResp;
 
+import java.util.List;
+
 /**
  * <p>
  * 座位 服务类
@@ -27,4 +29,6 @@ public interface TrainSeatService extends IService<TrainSeat> {
     PageResp<TrainSeatQueryResp> queryList(TrainSeatQueryReq request);
 
     void generateByTrainCode(String trainCode);
+
+    List<TrainSeat> listByTrainCode(String trainCode);
 }

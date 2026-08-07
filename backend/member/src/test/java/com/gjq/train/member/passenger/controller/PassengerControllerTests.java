@@ -1,14 +1,11 @@
 package com.gjq.train.member.passenger.controller;
 
-import com.gjq.train.common.context.LoginMemberContext;
 import com.gjq.train.common.controller.ControllerExceptionHandler;
-import com.gjq.train.common.resp.MemberLoginResp;
 import com.gjq.train.common.resp.PageResp;
 import com.gjq.train.member.passenger.req.PassengerQueryReq;
 import com.gjq.train.member.passenger.req.PassengerSaveReq;
 import com.gjq.train.member.passenger.resp.PassengerQueryResp;
 import com.gjq.train.member.passenger.service.PassengerService;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -48,11 +45,6 @@ class PassengerControllerTests {
                 .build();
     }
 
-    @AfterEach
-    void tearDown() {
-        LoginMemberContext.remove();
-    }
-
     @Test
     void shouldSavePassengerWithJsonBody() throws Exception {
         mockMvc.perform(
@@ -80,10 +72,6 @@ class PassengerControllerTests {
 
     @Test
     void shouldQueryPassengerPageForLoginMember() throws Exception {
-        MemberLoginResp member = new MemberLoginResp();
-        member.setId(1L);
-        LoginMemberContext.setMember(member);
-
         PageResp<PassengerQueryResp> pageResp = new PageResp<>();
         pageResp.setTotal(0L);
         pageResp.setList(List.of());
@@ -102,10 +90,23 @@ class PassengerControllerTests {
 
         verify(passengerService).queryList(argThat(
                 (PassengerQueryReq request) ->
-                        Long.valueOf(1L).equals(request.getMemberId())
-                                && request.getPage() == 1
+                        request.getPage() == 1
                                 && request.getSize() == 10
         ));
+    }
+
+    @Test
+    void shouldQueryAllPassengersForLoginMember() throws Exception {
+        PassengerQueryResp passenger = new PassengerQueryResp();
+        passenger.setId(100L);
+        passenger.setName("张三");
+        when(passengerService.queryMine()).thenReturn(List.of(passenger));
+
+        mockMvc.perform(get("/passenger/query-mine"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].name").value("张三"));
+
+        verify(passengerService).queryMine();
     }
 
     @Test

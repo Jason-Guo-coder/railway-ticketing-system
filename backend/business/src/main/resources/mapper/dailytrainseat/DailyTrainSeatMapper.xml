@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gjq.train.business.dailytrainseat.mapper.DailyTrainSeatMapper">
+
+    <resultMap id="BaseResultMap" type="com.gjq.train.business.dailytrainseat.entity.DailyTrainSeat">
+        <id column="id" property="id" />
+        <result column="date" property="date" />
+        <result column="train_code" property="trainCode" />
+        <result column="carriage_index" property="carriageIndex" />
+        <result column="row" property="row" />
+        <result column="col" property="col" />
+        <result column="seat_type" property="seatType" />
+        <result column="carriage_seat_index" property="carriageSeatIndex" />
+        <result column="sell" property="sell" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, `date`, train_code, carriage_index, `row`, col, seat_type,
+        carriage_seat_index, sell, create_time, update_time
+    </sql>
+
+</mapper>

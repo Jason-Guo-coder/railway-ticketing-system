@@ -197,6 +197,19 @@ class TrainSeatServiceImplTests {
         verify(trainSeatMapper, never()).insert(any(TrainSeat.class));
     }
 
+    @Test
+    void shouldListAllSeatsByTrainCode() {
+        TrainSeat trainSeat = new TrainSeat();
+        trainSeat.setTrainCode("G1");
+        when(trainSeatMapper.selectList(any(Wrapper.class)))
+                .thenReturn(List.of(trainSeat));
+
+        List<TrainSeat> result = trainSeatService.listByTrainCode("G1");
+
+        assertEquals(1, result.size());
+        assertEquals("G1", result.get(0).getTrainCode());
+    }
+
     private TrainSeatSaveReq saveRequest() {
         TrainSeatSaveReq request = new TrainSeatSaveReq();
         request.setTrainCode("G1");

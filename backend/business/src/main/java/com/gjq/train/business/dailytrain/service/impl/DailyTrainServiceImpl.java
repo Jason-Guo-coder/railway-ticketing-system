@@ -11,12 +11,18 @@ import com.gjq.train.business.dailytrain.req.DailyTrainSaveReq;
 import com.gjq.train.business.dailytrain.req.DailyTrainUpdateReq;
 import com.gjq.train.business.dailytrain.resp.DailyTrainQueryResp;
 import com.gjq.train.business.dailytrain.service.DailyTrainService;
+import com.gjq.train.business.dailytraincarriage.service.DailyTrainCarriageService;
+import com.gjq.train.business.dailytrainseat.service.DailyTrainSeatService;
+import com.gjq.train.business.dailytrainstation.service.DailyTrainStationService;
+import com.gjq.train.business.train.entity.Train;
 import com.gjq.train.business.train.enums.TrainTypeEnum;
+import com.gjq.train.business.train.service.TrainService;
 import com.gjq.train.common.exception.BusinessException;
 import com.gjq.train.common.exception.BusinessExceptionEnum;
 import com.gjq.train.common.resp.PageResp;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
@@ -38,6 +44,18 @@ public class DailyTrainServiceImpl
 
     @Resource
     private DailyTrainMapper dailyTrainMapper;
+
+    @Resource
+    private TrainService trainService;
+
+    @Resource
+    private DailyTrainStationService dailyTrainStationService;
+
+    @Resource
+    private DailyTrainCarriageService dailyTrainCarriageService;
+
+    @Resource
+    private DailyTrainSeatService dailyTrainSeatService;
 
     @Override
     public void save(DailyTrainSaveReq request) {
@@ -138,6 +156,48 @@ public class DailyTrainServiceImpl
         response.setTotal(dailyTrainPage.getTotal());
         response.setList(list);
         return response;
+    }
+
+    @Override
+    @Transactional
+    public void generate(LocalDate date) {
+        //1. 查询全部基础车次
+        List<Train> trains = trainService.list(new LambdaQueryWrapper<Train>().orderByAsc(Train::getCode)
+        );
+
+        //2. 逐个车次生成指定日期的完整运行数据
+        for (Train train : trains) {
+            //② 清空并重新生成每日车次，保证重复执行结果一致
+            dailyTrainMapper.delete(
+                    new LambdaQueryWrapper<DailyTrain>()
+                            .eq(DailyTrain::getDate, date)
+                            .eq(DailyTrain::getCode, train.getCode())
+            );
+            DailyTrain dailyTrain = BeanUtil.copyProperties(
+                    train,
+                    DailyTrain.class
+            );
+            LocalDateTime now = LocalDateTime.now();
+            dailyTrain.setId(null);
+            dailyTrain.setDate(date);
+            dailyTrain.setCreateTime(now);
+            dailyTrain.setUpdateTime(now);
+            dailyTrainMapper.insert(dailyTrain);
+
+            //③ 按依赖顺序生成每日车站、车厢和座位
+            dailyTrainStationService.generateByTrainCode(
+                    date,
+                    train.getCode()
+            );
+            dailyTrainCarriageService.generateByTrainCode(
+                    date,
+                    train.getCode()
+            );
+            dailyTrainSeatService.generateByTrainCode(
+                    date,
+                    train.getCode()
+            );
+        }
     }
 
     private void checkType(String type) {

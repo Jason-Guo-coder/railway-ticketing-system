@@ -7,6 +7,11 @@ import com.gjq.train.business.dailytrain.mapper.DailyTrainMapper;
 import com.gjq.train.business.dailytrain.req.DailyTrainQueryReq;
 import com.gjq.train.business.dailytrain.req.DailyTrainSaveReq;
 import com.gjq.train.business.dailytrain.req.DailyTrainUpdateReq;
+import com.gjq.train.business.dailytraincarriage.service.DailyTrainCarriageService;
+import com.gjq.train.business.dailytrainseat.service.DailyTrainSeatService;
+import com.gjq.train.business.dailytrainstation.service.DailyTrainStationService;
+import com.gjq.train.business.train.entity.Train;
+import com.gjq.train.business.train.service.TrainService;
 import com.gjq.train.common.exception.BusinessException;
 import com.gjq.train.common.resp.PageResp;
 import org.junit.jupiter.api.Test;
@@ -32,6 +37,18 @@ class DailyTrainServiceImplTests {
 
     @Mock
     private DailyTrainMapper dailyTrainMapper;
+
+    @Mock
+    private TrainService trainService;
+
+    @Mock
+    private DailyTrainStationService dailyTrainStationService;
+
+    @Mock
+    private DailyTrainCarriageService dailyTrainCarriageService;
+
+    @Mock
+    private DailyTrainSeatService dailyTrainSeatService;
 
     @InjectMocks
     private DailyTrainServiceImpl dailyTrainService;
@@ -145,6 +162,39 @@ class DailyTrainServiceImplTests {
 
         assertEquals(1L, response.getTotal());
         assertEquals(1, response.getList().size());
+    }
+
+    @Test
+    void shouldGenerateDailyDataForEveryTrain() {
+        LocalDate date = LocalDate.of(2026, 8, 8);
+        Train train = new Train();
+        train.setId(200L);
+        train.setCode("G1");
+        train.setType("G");
+        train.setStart("北京南");
+        train.setStartPinyin("beijingnan");
+        train.setStartTime(LocalTime.of(8, 0));
+        train.setEnd("上海虹桥");
+        train.setEndPinyin("shanghaihongqiao");
+        train.setEndTime(LocalTime.of(12, 30));
+        when(trainService.list(any(Wrapper.class)))
+                .thenReturn(List.of(train));
+
+        dailyTrainService.generate(date);
+
+        verify(dailyTrainMapper).delete(any(Wrapper.class));
+        verify(dailyTrainMapper).insert(argThat(
+                (DailyTrain dailyTrain) -> dailyTrain.getId() == null
+                        && date.equals(dailyTrain.getDate())
+                        && "G1".equals(dailyTrain.getCode())
+                        && dailyTrain.getCreateTime() != null
+        ));
+        verify(dailyTrainStationService)
+                .generateByTrainCode(date, "G1");
+        verify(dailyTrainCarriageService)
+                .generateByTrainCode(date, "G1");
+        verify(dailyTrainSeatService)
+                .generateByTrainCode(date, "G1");
     }
 
     private DailyTrainSaveReq saveRequest() {

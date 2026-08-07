@@ -13,7 +13,10 @@ import org.springframework.core.env.Environment;
         "com.gjq.train.business.trainstation.mapper",
         "com.gjq.train.business.traincarriage.mapper",
         "com.gjq.train.business.trainseat.mapper",
-        "com.gjq.train.business.dailytrain.mapper"
+        "com.gjq.train.business.dailytrain.mapper",
+        "com.gjq.train.business.dailytrainstation.mapper",
+        "com.gjq.train.business.dailytraincarriage.mapper",
+        "com.gjq.train.business.dailytrainseat.mapper"
 })
 @SpringBootApplication(scanBasePackages = "com.gjq.train")
 public class BusinessApplication {

@@ -15,3 +15,7 @@ export function updateDailyTrain(data) {
 export function queryDailyTrainList(params) {
   return request.get('/business/admin/daily-train/query-list', { params })
 }
+
+export function generateDailyTrains(date) {
+  return request.post(`/business/admin/daily-train/gen-daily/${date}`)
+}

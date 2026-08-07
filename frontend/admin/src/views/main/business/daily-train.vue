@@ -15,6 +15,10 @@
           <PlusOutlined />
           新增每日车次
         </a-button>
+        <a-button danger @click="openGenerateModal">
+          <SyncOutlined />
+          生成每日数据
+        </a-button>
       </div>
     </header>
 
@@ -159,6 +163,26 @@
         </a-form-item>
       </a-form>
     </a-modal>
+
+    <a-modal
+      v-model:visible="generateModalVisible"
+      :confirm-loading="generating"
+      cancel-text="取消"
+      ok-text="生成"
+      title="生成每日数据"
+      @ok="generate"
+    >
+      <a-form :label-col="{ span: 5 }" :wrapper-col="{ span: 19 }">
+        <a-form-item label="日期" required>
+          <a-date-picker
+            v-model:value="generateDate"
+            placeholder="请选择日期"
+            style="width: 100%"
+            value-format="YYYY-MM-DD"
+          />
+        </a-form-item>
+      </a-form>
+    </a-modal>
   </div>
 </template>
 
@@ -169,11 +193,13 @@ import {
   PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
+  SyncOutlined,
 } from '@ant-design/icons-vue'
 import StationSelect from '@/components/station-select.vue'
 import TrainSelect from '@/components/train-select.vue'
 import {
   deleteDailyTrain,
+  generateDailyTrains,
   queryDailyTrainList,
   saveDailyTrain,
   updateDailyTrain,
@@ -186,8 +212,11 @@ const trainTypes = [
 ]
 const formRef = ref()
 const modalVisible = ref(false)
+const generateModalVisible = ref(false)
 const saving = ref(false)
+const generating = ref(false)
 const loading = ref(false)
+const generateDate = ref()
 const dailyTrains = ref([])
 const query = reactive({
   date: undefined,
@@ -334,6 +363,37 @@ function openAddModal() {
   resetForm()
   dailyTrain.date = query.date
   modalVisible.value = true
+}
+
+function openGenerateModal() {
+  generateDate.value = query.date
+  generateModalVisible.value = true
+}
+
+async function generate() {
+  if (!generateDate.value) {
+    notification.warning({ description: '请选择生成日期' })
+    return
+  }
+
+  generating.value = true
+  try {
+    const data = await generateDailyTrains(generateDate.value)
+    if (data.success) {
+      notification.success({ description: '每日数据生成成功' })
+      query.date = generateDate.value
+      generateModalVisible.value = false
+      await loadDailyTrains(1, pagination.pageSize)
+    } else {
+      notification.error({ description: data.message || '生成失败' })
+    }
+  } catch (error) {
+    notification.error({
+      description: error.response?.data?.message || '生成失败，请稍后再试',
+    })
+  } finally {
+    generating.value = false
+  }
 }
 
 function openEditModal(record) {

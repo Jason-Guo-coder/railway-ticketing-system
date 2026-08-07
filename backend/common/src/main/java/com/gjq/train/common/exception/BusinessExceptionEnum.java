@@ -65,6 +65,46 @@ public enum BusinessExceptionEnum {
             "每日车次不存在"
     ),
 
+    BUSINESS_DAILY_TRAIN_STATION_INDEX_EXIST(
+            "BUSINESS_DAILY_TRAIN_STATION_INDEX_EXIST",
+            "该日期车次的站序已存在"
+    ),
+
+    BUSINESS_DAILY_TRAIN_STATION_NAME_EXIST(
+            "BUSINESS_DAILY_TRAIN_STATION_NAME_EXIST",
+            "该日期车次的站名已存在"
+    ),
+
+    BUSINESS_DAILY_TRAIN_STATION_NOT_EXIST(
+            "BUSINESS_DAILY_TRAIN_STATION_NOT_EXIST",
+            "每日车站不存在"
+    ),
+
+    BUSINESS_DAILY_TRAIN_CARRIAGE_INDEX_EXIST(
+            "BUSINESS_DAILY_TRAIN_CARRIAGE_INDEX_EXIST",
+            "该日期车次的厢序已存在"
+    ),
+
+    BUSINESS_DAILY_TRAIN_CARRIAGE_NOT_EXIST(
+            "BUSINESS_DAILY_TRAIN_CARRIAGE_NOT_EXIST",
+            "每日车厢不存在"
+    ),
+
+    BUSINESS_DAILY_TRAIN_SEAT_LOCATION_EXIST(
+            "BUSINESS_DAILY_TRAIN_SEAT_LOCATION_EXIST",
+            "该日期车次的座位位置已存在"
+    ),
+
+    BUSINESS_DAILY_TRAIN_SEAT_INDEX_EXIST(
+            "BUSINESS_DAILY_TRAIN_SEAT_INDEX_EXIST",
+            "该日期车次的车厢座序已存在"
+    ),
+
+    BUSINESS_DAILY_TRAIN_SEAT_NOT_EXIST(
+            "BUSINESS_DAILY_TRAIN_SEAT_NOT_EXIST",
+            "每日座位不存在"
+    ),
+
     BUSINESS_TRAIN_STATION_INDEX_EXIST(
             "BUSINESS_TRAIN_STATION_INDEX_EXIST",
             "该车次的站序已存在"

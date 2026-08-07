@@ -8,6 +8,8 @@ import com.gjq.train.business.dailytrain.req.DailyTrainUpdateReq;
 import com.gjq.train.business.dailytrain.resp.DailyTrainQueryResp;
 import com.gjq.train.common.resp.PageResp;
 
+import java.time.LocalDate;
+
 /**
  * <p>
  * 每日车次 服务类
@@ -25,4 +27,6 @@ public interface DailyTrainService extends IService<DailyTrain> {
     void update(DailyTrainUpdateReq request);
 
     PageResp<DailyTrainQueryResp> queryList(DailyTrainQueryReq request);
+
+    void generate(LocalDate date);
 }

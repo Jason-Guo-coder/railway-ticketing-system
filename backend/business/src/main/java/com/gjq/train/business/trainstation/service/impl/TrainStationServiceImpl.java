@@ -151,6 +151,15 @@ public class TrainStationServiceImpl
         return response;
     }
 
+    @Override
+    public List<TrainStation> listByTrainCode(String trainCode) {
+        return trainStationMapper.selectList(
+                new LambdaQueryWrapper<TrainStation>()
+                        .eq(TrainStation::getTrainCode, trainCode)
+                        .orderByAsc(TrainStation::getIndex)
+        );
+    }
+
     private void checkReferencesExist(String trainCode, String stationName) {
         if (!trainService.existsByCode(trainCode)) {
             throw new BusinessException(

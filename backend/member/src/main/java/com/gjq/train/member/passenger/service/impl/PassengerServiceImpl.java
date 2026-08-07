@@ -92,7 +92,7 @@ public class PassengerServiceImpl extends ServiceImpl<PassengerMapper, Passenger
         LambdaQueryWrapper<Passenger> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(
                         Passenger::getMemberId,
-                        passengerQueryReq.getMemberId()
+                        LoginMemberContext.getId()
                 )
                 .orderByDesc(Passenger::getId);
 
@@ -117,5 +117,21 @@ public class PassengerServiceImpl extends ServiceImpl<PassengerMapper, Passenger
         pageResp.setTotal(passengerPage.getTotal());
         pageResp.setList(list);
         return pageResp;
+    }
+
+    @Override
+    public List<PassengerQueryResp> queryMine() {
+        //1. 查询当前会员的全部乘车人并按姓名排序
+        List<Passenger> passengers = passengerMapper.selectList(
+                new LambdaQueryWrapper<Passenger>()
+                        .eq(
+                                Passenger::getMemberId,
+                                LoginMemberContext.getId()
+                        )
+                        .orderByAsc(Passenger::getName)
+        );
+
+        //2. 转换为购票页面需要的乘车人列表
+        return BeanUtil.copyToList(passengers, PassengerQueryResp.class);
     }
 }

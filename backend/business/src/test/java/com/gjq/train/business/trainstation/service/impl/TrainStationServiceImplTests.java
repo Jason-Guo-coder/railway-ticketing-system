@@ -192,6 +192,19 @@ class TrainStationServiceImplTests {
         assertEquals(1, response.getList().size());
     }
 
+    @Test
+    void shouldListAllStationsByTrainCode() {
+        TrainStation trainStation = new TrainStation();
+        trainStation.setTrainCode("G1");
+        when(trainStationMapper.selectList(any(Wrapper.class)))
+                .thenReturn(List.of(trainStation));
+
+        List<TrainStation> result = trainStationService.listByTrainCode("G1");
+
+        assertEquals(1, result.size());
+        assertEquals("G1", result.get(0).getTrainCode());
+    }
+
     private void mockReferencesExist() {
         when(trainService.existsByCode("G1")).thenReturn(true);
         when(stationService.existsByName("南京南")).thenReturn(true);

@@ -15,3 +15,7 @@ export function updatePassenger(data) {
 export function queryPassengerList(params) {
   return request.get('/member/passenger/query-list', { params })
 }
+
+export function queryMyPassengers() {
+  return request.get('/member/passenger/query-mine')
+}

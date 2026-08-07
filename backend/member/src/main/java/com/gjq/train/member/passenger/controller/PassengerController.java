@@ -1,7 +1,6 @@
 package com.gjq.train.member.passenger.controller;
 
 import com.gjq.train.common.resp.Result;
-import com.gjq.train.common.context.LoginMemberContext;
 import com.gjq.train.common.resp.PageResp;
 import com.gjq.train.member.passenger.req.PassengerSaveReq;
 import com.gjq.train.member.passenger.req.PassengerQueryReq;
@@ -16,6 +15,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/passenger")
@@ -47,14 +48,15 @@ public class PassengerController {
     @GetMapping("/query-list")
     public Result<PageResp<PassengerQueryResp>> queryList(
             @Valid PassengerQueryReq passengerQueryReq) {
-        //1. 使用登录上下文确定查询范围
-        passengerQueryReq.setMemberId(LoginMemberContext.getId());
-
-        //2. 查询当前会员的乘车人列表
         PageResp<PassengerQueryResp> pageResp = passengerService.queryList(
                 passengerQueryReq
         );
         return Result.success(pageResp);
+    }
+
+    @GetMapping("/query-mine")
+    public Result<List<PassengerQueryResp>> queryMine() {
+        return Result.success(passengerService.queryMine());
     }
 
 }

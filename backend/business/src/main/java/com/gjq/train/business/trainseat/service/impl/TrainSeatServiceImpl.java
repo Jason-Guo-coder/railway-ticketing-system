@@ -165,6 +165,16 @@ public class TrainSeatServiceImpl
         }
     }
 
+    @Override
+    public List<TrainSeat> listByTrainCode(String trainCode) {
+        return trainSeatMapper.selectList(
+                new LambdaQueryWrapper<TrainSeat>()
+                        .eq(TrainSeat::getTrainCode, trainCode)
+                        .orderByAsc(TrainSeat::getCarriageIndex)
+                        .orderByAsc(TrainSeat::getCarriageSeatIndex)
+        );
+    }
+
     private void generateCarriageSeats(
             String trainCode,
             TrainCarriage carriage,

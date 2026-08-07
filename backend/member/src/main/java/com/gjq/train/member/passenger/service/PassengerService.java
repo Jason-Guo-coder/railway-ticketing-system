@@ -3,6 +3,8 @@ package com.gjq.train.member.passenger.service;
 import com.gjq.train.member.passenger.entity.Passenger;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.gjq.train.common.resp.PageResp;
+
+import java.util.List;
 import com.gjq.train.member.passenger.req.PassengerQueryReq;
 import com.gjq.train.member.passenger.req.PassengerSaveReq;
 import com.gjq.train.member.passenger.resp.PassengerQueryResp;
@@ -23,4 +25,6 @@ public interface PassengerService extends IService<Passenger> {
     void update(PassengerSaveReq passengerSaveReq);
 
     PageResp<PassengerQueryResp> queryList(PassengerQueryReq passengerQueryReq);
+
+    List<PassengerQueryResp> queryMine();
 }

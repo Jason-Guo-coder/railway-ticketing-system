@@ -105,6 +105,16 @@ public enum BusinessExceptionEnum {
             "每日座位不存在"
     ),
 
+    BUSINESS_DAILY_TRAIN_TICKET_ROUTE_EXIST(
+            "BUSINESS_DAILY_TRAIN_TICKET_ROUTE_EXIST",
+            "该日期车次的出发到达区间已存在"
+    ),
+
+    BUSINESS_DAILY_TRAIN_TICKET_NOT_EXIST(
+            "BUSINESS_DAILY_TRAIN_TICKET_NOT_EXIST",
+            "每日余票不存在"
+    ),
+
     BUSINESS_TRAIN_STATION_INDEX_EXIST(
             "BUSINESS_TRAIN_STATION_INDEX_EXIST",
             "该车次的站序已存在"

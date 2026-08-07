@@ -14,6 +14,7 @@ import com.gjq.train.business.dailytrain.service.DailyTrainService;
 import com.gjq.train.business.dailytraincarriage.service.DailyTrainCarriageService;
 import com.gjq.train.business.dailytrainseat.service.DailyTrainSeatService;
 import com.gjq.train.business.dailytrainstation.service.DailyTrainStationService;
+import com.gjq.train.business.dailytrainticket.service.DailyTrainTicketService;
 import com.gjq.train.business.train.entity.Train;
 import com.gjq.train.business.train.enums.TrainTypeEnum;
 import com.gjq.train.business.train.service.TrainService;
@@ -56,6 +57,9 @@ public class DailyTrainServiceImpl
 
     @Resource
     private DailyTrainSeatService dailyTrainSeatService;
+
+    @Resource
+    private DailyTrainTicketService dailyTrainTicketService;
 
     @Override
     public void save(DailyTrainSaveReq request) {
@@ -204,7 +208,7 @@ public class DailyTrainServiceImpl
             dailyTrain.setUpdateTime(now);
             dailyTrainMapper.insert(dailyTrain);
 
-            //③ 按依赖顺序生成每日车站、车厢和座位
+            //③ 按依赖顺序生成每日车站、车厢、座位和余票
             dailyTrainStationService.generateByTrainCode(
                     date,
                     train.getCode()
@@ -216,6 +220,11 @@ public class DailyTrainServiceImpl
             dailyTrainSeatService.generateByTrainCode(
                     date,
                     train.getCode()
+            );
+            dailyTrainTicketService.generateByTrainCode(
+                    date,
+                    train.getCode(),
+                    train.getType()
             );
         }
     }

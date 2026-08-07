@@ -21,6 +21,10 @@ export default defineConfig(({ mode }) => {
               target: env.API_PROXY_TARGET,
               changeOrigin: true,
             },
+            '/business': {
+              target: env.API_PROXY_TARGET,
+              changeOrigin: true,
+            },
           }
         : {},
     },

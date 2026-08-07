@@ -10,6 +10,7 @@ USE `railway_ticketing_system`;
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
+DROP TABLE IF EXISTS `daily_train_ticket`;
 DROP TABLE IF EXISTS `daily_train_seat`;
 DROP TABLE IF EXISTS `daily_train_carriage`;
 DROP TABLE IF EXISTS `daily_train_station`;
@@ -210,5 +211,35 @@ CREATE TABLE `daily_train_seat` (
   DEFAULT CHARACTER SET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci
   COMMENT = '每日座位';
+
+CREATE TABLE `daily_train_ticket` (
+    `id` BIGINT NOT NULL COMMENT 'id',
+    `date` DATE NOT NULL COMMENT '日期',
+    `train_code` VARCHAR(20) NOT NULL COMMENT '车次编号',
+    `start` VARCHAR(20) NOT NULL COMMENT '出发站',
+    `start_pinyin` VARCHAR(50) NOT NULL COMMENT '出发站拼音',
+    `start_time` TIME NOT NULL COMMENT '出发时间',
+    `start_index` INT NOT NULL COMMENT '出发站序|本站是整个车次的第几站',
+    `end` VARCHAR(20) NOT NULL COMMENT '到达站',
+    `end_pinyin` VARCHAR(50) NOT NULL COMMENT '到达站拼音',
+    `end_time` TIME NOT NULL COMMENT '到站时间',
+    `end_index` INT NOT NULL COMMENT '到站站序|本站是整个车次的第几站',
+    `ydz` INT NOT NULL COMMENT '一等座余票',
+    `ydz_price` DECIMAL(8, 2) NOT NULL COMMENT '一等座票价',
+    `edz` INT NOT NULL COMMENT '二等座余票',
+    `edz_price` DECIMAL(8, 2) NOT NULL COMMENT '二等座票价',
+    `rw` INT NOT NULL COMMENT '软卧余票',
+    `rw_price` DECIMAL(8, 2) NOT NULL COMMENT '软卧票价',
+    `yw` INT NOT NULL COMMENT '硬卧余票',
+    `yw_price` DECIMAL(8, 2) NOT NULL COMMENT '硬卧票价',
+    `create_time` DATETIME(3) DEFAULT NULL COMMENT '新增时间',
+    `update_time` DATETIME(3) DEFAULT NULL COMMENT '修改时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `date_train_code_start_end_unique`
+        (`date`, `train_code`, `start`, `end`)
+) ENGINE = InnoDB
+  DEFAULT CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci
+  COMMENT = '余票信息';
 
 SET FOREIGN_KEY_CHECKS = 1;

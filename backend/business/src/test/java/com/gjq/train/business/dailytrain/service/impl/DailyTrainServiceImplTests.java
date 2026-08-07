@@ -10,6 +10,7 @@ import com.gjq.train.business.dailytrain.req.DailyTrainUpdateReq;
 import com.gjq.train.business.dailytraincarriage.service.DailyTrainCarriageService;
 import com.gjq.train.business.dailytrainseat.service.DailyTrainSeatService;
 import com.gjq.train.business.dailytrainstation.service.DailyTrainStationService;
+import com.gjq.train.business.dailytrainticket.service.DailyTrainTicketService;
 import com.gjq.train.business.train.entity.Train;
 import com.gjq.train.business.train.service.TrainService;
 import com.gjq.train.common.exception.BusinessException;
@@ -49,6 +50,9 @@ class DailyTrainServiceImplTests {
 
     @Mock
     private DailyTrainSeatService dailyTrainSeatService;
+
+    @Mock
+    private DailyTrainTicketService dailyTrainTicketService;
 
     @InjectMocks
     private DailyTrainServiceImpl dailyTrainService;
@@ -195,6 +199,8 @@ class DailyTrainServiceImplTests {
                 .generateByTrainCode(date, "G1");
         verify(dailyTrainSeatService)
                 .generateByTrainCode(date, "G1");
+        verify(dailyTrainTicketService)
+                .generateByTrainCode(date, "G1", "G");
     }
 
     @Test

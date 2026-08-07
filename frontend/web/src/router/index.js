@@ -18,7 +18,12 @@ const router = createRouter({
         {
           path: 'ticket',
           component: () => import('../views/TicketView.vue'),
-          meta: { title: '车票查询' },
+          meta: { title: '余票查询' },
+        },
+        {
+          path: 'order',
+          component: () => import('../views/OrderView.vue'),
+          meta: { title: '确认订单' },
         },
         {
           path: 'passenger',

@@ -22,7 +22,7 @@
       <a-menu-item key="/ticket">
         <router-link to="/ticket">
           <SearchOutlined />
-          <span>车票查询</span>
+          <span>余票查询</span>
         </router-link>
       </a-menu-item>
       <a-menu-item key="/passenger">

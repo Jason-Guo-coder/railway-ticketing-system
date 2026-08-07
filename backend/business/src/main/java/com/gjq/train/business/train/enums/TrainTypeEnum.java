@@ -24,8 +24,14 @@ public enum TrainTypeEnum {
      */
     private final BigDecimal priceRate;
 
-    public static boolean contains(String code) {
+    public static TrainTypeEnum fromCode(String code) {
         return Arrays.stream(values())
-                .anyMatch(item -> item.code.equals(code));
+                .filter(item -> item.code.equals(code))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public static boolean contains(String code) {
+        return fromCode(code) != null;
     }
 }

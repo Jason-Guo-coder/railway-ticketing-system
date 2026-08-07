@@ -17,5 +17,9 @@ export function queryDailyTrainList(params) {
 }
 
 export function generateDailyTrains(date) {
-  return request.post(`/business/admin/daily-train/gen-daily/${date}`)
+  return request.post(
+    `/business/admin/daily-train/gen-daily/${date}`,
+    null,
+    { timeout: 120000 },
+  )
 }

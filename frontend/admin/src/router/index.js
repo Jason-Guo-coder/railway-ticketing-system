@@ -75,6 +75,13 @@ const routes = [
         ),
       },
       {
+        path: 'business/daily-train-ticket',
+        name: 'daily-train-ticket',
+        component: () => import(
+          '@/views/main/business/daily-train-ticket.vue'
+        ),
+      },
+      {
         path: 'batch/job',
         name: 'batch-job',
         component: () => import('@/views/main/batch/job.vue'),

@@ -115,6 +115,21 @@ public enum BusinessExceptionEnum {
             "每日余票不存在"
     ),
 
+    BUSINESS_CONFIRM_ORDER_TICKET_NOT_ENOUGH(
+            "BUSINESS_CONFIRM_ORDER_TICKET_NOT_ENOUGH",
+            "余票不足"
+    ),
+
+    BUSINESS_CONFIRM_ORDER_SEAT_NOT_ENOUGH(
+            "BUSINESS_CONFIRM_ORDER_SEAT_NOT_ENOUGH",
+            "没有足够的座位"
+    ),
+
+    BUSINESS_CONFIRM_ORDER_SEAT_SELECTION_INVALID(
+            "BUSINESS_CONFIRM_ORDER_SEAT_SELECTION_INVALID",
+            "选座信息无效"
+    ),
+
     BUSINESS_TRAIN_STATION_INDEX_EXIST(
             "BUSINESS_TRAIN_STATION_INDEX_EXIST",
             "该车次的站序已存在"

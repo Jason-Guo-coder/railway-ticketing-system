@@ -21,4 +21,10 @@
         carriage_seat_index, sell, create_time, update_time
     </sql>
 
+    <update id="updateSellIfMatch">
+        update daily_train_seat
+        set sell = #{newSell}, update_time = #{updateTime}
+        where id = #{id} and sell = #{oldSell}
+    </update>
+
 </mapper>

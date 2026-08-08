@@ -10,6 +10,7 @@ import com.gjq.train.business.confirmorder.req.ConfirmOrderDoReq;
 import com.gjq.train.business.confirmorder.req.ConfirmOrderTicketReq;
 import com.gjq.train.business.confirmorder.req.ConfirmOrderQueryReq;
 import com.gjq.train.business.confirmorder.resp.ConfirmOrderQueryResp;
+import com.gjq.train.business.confirmorder.service.ConfirmOrderTransactionService;
 import com.gjq.train.business.dailytrainticket.entity.DailyTrainTicket;
 import com.gjq.train.business.dailytrainticket.service.DailyTrainTicketService;
 import com.gjq.train.business.dailytrainseat.entity.DailyTrainSeat;
@@ -50,6 +51,9 @@ class ConfirmOrderServiceImplTests {
 
     @Mock
     private DailyTrainSeatService dailyTrainSeatService;
+
+    @Mock
+    private ConfirmOrderTransactionService confirmOrderTransactionService;
 
     @InjectMocks
     private ConfirmOrderServiceImpl confirmOrderService;

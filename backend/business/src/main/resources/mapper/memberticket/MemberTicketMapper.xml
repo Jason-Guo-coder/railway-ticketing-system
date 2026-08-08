@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gjq.train.business.memberticket.mapper.MemberTicketMapper">
+
+    <resultMap id="BaseResultMap" type="com.gjq.train.business.memberticket.entity.MemberTicket">
+        <id column="id" property="id" />
+        <result column="member_id" property="memberId" />
+        <result column="passenger_id" property="passengerId" />
+        <result column="date" property="date" />
+        <result column="train_code" property="trainCode" />
+        <result column="start" property="start" />
+        <result column="end" property="end" />
+        <result column="carriage_index" property="carriageIndex" />
+        <result column="row" property="row" />
+        <result column="col" property="col" />
+        <result column="seat_type" property="seatType" />
+        <result column="seat" property="seat" />
+        <result column="passenger_type" property="passengerType" />
+        <result column="passenger_name" property="passengerName" />
+        <result column="passenger_id_card" property="passengerIdCard" />
+        <result column="price" property="price" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, member_id, passenger_id, `date`, train_code, `start`, `end`,
+        carriage_index, `row`, col, seat_type, seat, passenger_type,
+        passenger_name, passenger_id_card, price, create_time, update_time
+    </sql>
+
+</mapper>

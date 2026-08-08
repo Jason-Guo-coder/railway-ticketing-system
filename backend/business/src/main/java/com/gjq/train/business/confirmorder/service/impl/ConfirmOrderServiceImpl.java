@@ -13,6 +13,7 @@ import com.gjq.train.business.confirmorder.req.ConfirmOrderTicketReq;
 import com.gjq.train.business.confirmorder.req.ConfirmOrderQueryReq;
 import com.gjq.train.business.confirmorder.resp.ConfirmOrderQueryResp;
 import com.gjq.train.business.confirmorder.service.ConfirmOrderService;
+import com.gjq.train.business.confirmorder.service.ConfirmOrderTransactionService;
 import com.gjq.train.business.dailytrainseat.entity.DailyTrainSeat;
 import com.gjq.train.business.dailytrainseat.service.DailyTrainSeatService;
 import com.gjq.train.business.dailytrainticket.entity.DailyTrainTicket;
@@ -57,6 +58,9 @@ public class ConfirmOrderServiceImpl
     @Resource
     private DailyTrainSeatService dailyTrainSeatService;
 
+    @Resource
+    private ConfirmOrderTransactionService confirmOrderTransactionService;
+
     @Override
     public void doConfirm(ConfirmOrderDoReq request) {
         //1. 使用当前登录会员保存初始状态的确认订单
@@ -84,19 +88,56 @@ public class ConfirmOrderServiceImpl
                         request.getStart(),
                         request.getEnd()
                 );
-        if (dailyTrainTicket == null) {
-            throw new BusinessException(
-                    BusinessExceptionEnum.BUSINESS_DAILY_TRAIN_TICKET_NOT_EXIST
+        try {
+            if (dailyTrainTicket == null) {
+                throw new BusinessException(
+                        BusinessExceptionEnum
+                                .BUSINESS_DAILY_TRAIN_TICKET_NOT_EXIST
+                );
+            }
+
+            //3. 使用临时库存预扣，避免确认弹窗取消时影响真实余票
+            checkTicketCount(dailyTrainTicket, request.getTickets());
+
+            //4. 查询座位并在内存中完成自动分配或按偏移选座
+            List<DailyTrainSeat> dailyTrainSeats =
+                    listDailyTrainSeats(request);
+            List<DailyTrainSeat> selectedSeats = chooseSeats(
+                    request,
+                    dailyTrainTicket,
+                    dailyTrainSeats
             );
+
+            //5. 在独立事务中更新座位、余票、会员车票和订单状态
+            confirmOrderTransactionService.finish(
+                    confirmOrder,
+                    request,
+                    dailyTrainTicket,
+                    selectedSeats
+            );
+            LOG.info(
+                    "确认订单{}选座完成：{}",
+                    confirmOrder.getId(),
+                    request.getTickets()
+            );
+        } catch (RuntimeException exception) {
+            //初始订单必须保留，失败只更新订单状态
+            boolean noTicket = exception instanceof BusinessException
+                    && (((BusinessException) exception).getExceptionEnum()
+                    == BusinessExceptionEnum
+                    .BUSINESS_CONFIRM_ORDER_TICKET_NOT_ENOUGH
+                    || ((BusinessException) exception).getExceptionEnum()
+                    == BusinessExceptionEnum
+                    .BUSINESS_CONFIRM_ORDER_SEAT_NOT_ENOUGH);
+            confirmOrder.setStatus(
+                    noTicket
+                            ? ConfirmOrderStatusEnum.EMPTY.getCode()
+                            : ConfirmOrderStatusEnum.FAILURE.getCode()
+            );
+            confirmOrder.setUpdateTime(LocalDateTime.now());
+            confirmOrderMapper.updateById(confirmOrder);
+            throw exception;
         }
-
-        //3. 使用临时库存预扣，避免确认弹窗取消时影响真实余票
-        checkTicketCount(dailyTrainTicket, request.getTickets());
-
-        //4. 查询座位并在内存中完成自动分配或按偏移选座
-        List<DailyTrainSeat> dailyTrainSeats = listDailyTrainSeats(request);
-        chooseSeats(request, dailyTrainTicket, dailyTrainSeats);
-        LOG.info("确认订单{}选座完成：{}", confirmOrder.getId(), request.getTickets());
     }
 
     private void checkTicketCount(
@@ -143,7 +184,7 @@ public class ConfirmOrderServiceImpl
         );
     }
 
-    private void chooseSeats(
+    private List<DailyTrainSeat> chooseSeats(
             ConfirmOrderDoReq request,
             DailyTrainTicket dailyTrainTicket,
             List<DailyTrainSeat> dailyTrainSeats
@@ -180,6 +221,7 @@ public class ConfirmOrderServiceImpl
         for (int i = 0; i < tickets.size(); i++) {
             tickets.get(i).setSeat(formatSeat(selectedSeats.get(i)));
         }
+        return selectedSeats;
     }
 
     private List<DailyTrainSeat> chooseSeatsAutomatically(

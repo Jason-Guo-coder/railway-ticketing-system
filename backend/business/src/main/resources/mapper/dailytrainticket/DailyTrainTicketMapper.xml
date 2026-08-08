@@ -32,4 +32,18 @@
         id, `date`, train_code, `start`, start_pinyin, start_time, start_index, `end`, end_pinyin, end_time, end_index, ydz, ydz_price, edz, edz_price, rw, rw_price, yw, yw_price, create_time, update_time
     </sql>
 
+    <update id="deductInventory">
+        update daily_train_ticket
+        set ydz = ydz - #{ydz},
+            edz = edz - #{edz},
+            rw = rw - #{rw},
+            yw = yw - #{yw},
+            update_time = now(3)
+        where id = #{id}
+          and ydz &gt;= #{ydz}
+          and edz &gt;= #{edz}
+          and rw &gt;= #{rw}
+          and yw &gt;= #{yw}
+    </update>
+
 </mapper>

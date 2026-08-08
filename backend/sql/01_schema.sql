@@ -11,6 +11,7 @@ SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
 DROP TABLE IF EXISTS `confirm_order`;
+DROP TABLE IF EXISTS `member_ticket`;
 DROP TABLE IF EXISTS `daily_train_ticket`;
 DROP TABLE IF EXISTS `daily_train_seat`;
 DROP TABLE IF EXISTS `daily_train_carriage`;
@@ -242,6 +243,33 @@ CREATE TABLE `daily_train_ticket` (
   DEFAULT CHARACTER SET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci
   COMMENT = '余票信息';
+
+CREATE TABLE `member_ticket` (
+    `id` BIGINT NOT NULL COMMENT 'id',
+    `member_id` BIGINT NOT NULL COMMENT '会员id',
+    `passenger_id` BIGINT NOT NULL COMMENT '乘客id',
+    `date` DATE NOT NULL COMMENT '日期',
+    `train_code` VARCHAR(20) NOT NULL COMMENT '车次编号',
+    `start` VARCHAR(20) NOT NULL COMMENT '出发站',
+    `end` VARCHAR(20) NOT NULL COMMENT '到达站',
+    `carriage_index` INT NOT NULL COMMENT '车厢序号',
+    `row` VARCHAR(5) NOT NULL COMMENT '排号',
+    `col` CHAR(1) NOT NULL COMMENT '列号',
+    `seat_type` CHAR(1) NOT NULL COMMENT '座位类型|枚举[SeatTypeEnum]',
+    `seat` VARCHAR(20) NOT NULL COMMENT '座位',
+    `passenger_type` CHAR(1) NOT NULL COMMENT '乘客类型|枚举[PassengerTypeEnum]',
+    `passenger_name` VARCHAR(20) NOT NULL COMMENT '乘客姓名',
+    `passenger_id_card` VARCHAR(20) NOT NULL COMMENT '乘客身份证',
+    `price` DECIMAL(8, 2) NOT NULL COMMENT '票价',
+    `create_time` DATETIME(3) DEFAULT NULL COMMENT '新增时间',
+    `update_time` DATETIME(3) DEFAULT NULL COMMENT '修改时间',
+    PRIMARY KEY (`id`),
+    KEY `member_date_index` (`member_id`, `date`),
+    KEY `date_train_code_index` (`date`, `train_code`)
+) ENGINE = InnoDB
+  DEFAULT CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci
+  COMMENT = '会员车票';
 
 CREATE TABLE `confirm_order` (
     `id` BIGINT NOT NULL COMMENT 'id',

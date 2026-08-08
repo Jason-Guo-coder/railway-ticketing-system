@@ -170,6 +170,24 @@ class DailyTrainTicketServiceImplTests {
     }
 
     @Test
+    void shouldQueryTicketByUniqueRoute() {
+        DailyTrainTicket ticket = new DailyTrainTicket();
+        ticket.setId(100L);
+        when(dailyTrainTicketMapper.selectOne(any(Wrapper.class)))
+                .thenReturn(ticket);
+
+        DailyTrainTicket result = dailyTrainTicketService.selectByUnique(
+                LocalDate.of(2026, 8, 8),
+                "G1",
+                "北京南",
+                "上海虹桥"
+        );
+
+        assertEquals(100L, result.getId());
+        verify(dailyTrainTicketMapper).selectOne(any(Wrapper.class));
+    }
+
+    @Test
     void shouldGenerateAllTicketRoutesWithCalculatedPrices() {
         when(trainStationService.listByTrainCode("G1"))
                 .thenReturn(stations());

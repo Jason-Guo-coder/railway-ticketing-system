@@ -127,10 +127,11 @@
       <a-modal
         v-model:visible="confirmVisible"
         cancel-text="返回修改"
+        :confirm-loading="confirmLoading"
         ok-text="确认"
         title="请核对购票信息"
         width="760px"
-        @ok="confirmVisible = false"
+        @ok="confirmOrder"
       >
         <a-table
           class="confirm-table"
@@ -150,6 +151,48 @@
             </template>
           </template>
         </a-table>
+
+        <section class="seat-picker">
+          <div class="seat-picker-heading">
+            <strong>选择座位</strong>
+            <span v-if="chooseSeatType !== '0'">
+              已选 {{ selectedSeatKeys.length }} / {{ tickets.length }}
+            </span>
+          </div>
+
+          <a-alert
+            v-if="chooseSeatType === '0'"
+            message="当前订单不支持选座，将由系统自动分配座位"
+            show-icon
+            type="info"
+          />
+          <template v-else>
+            <div class="seat-map">
+              <div
+                v-for="row in seatRows"
+                :key="row"
+                class="seat-map-row"
+              >
+                <span class="seat-row-label">{{ row }}排</span>
+                <label
+                  v-for="column in selectableColumns"
+                  :key="`${column}${row}`"
+                  :class="[
+                    'seat-choice',
+                    { 'aisle-start': column === 'D' },
+                  ]"
+                >
+                  <input
+                    v-model="seatSelection[`${column}${row}`]"
+                    :aria-label="`${row}排${column}座`"
+                    type="checkbox"
+                  />
+                  <span>{{ column }}</span>
+                </label>
+              </div>
+            </div>
+          </template>
+        </section>
       </a-modal>
     </template>
 
@@ -165,18 +208,23 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { notification } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
 import {
   ArrowLeftOutlined,
   ArrowRightOutlined,
 } from '@ant-design/icons-vue'
-import { buildAvailableSeatTypes } from '@/constants/seat-types'
+import {
+  buildAvailableSeatTypes,
+  SEAT_COLUMNS,
+  SEAT_TYPES,
+} from '@/constants/seat-types'
 import {
   PASSENGER_TYPES,
   passengerTypeName,
 } from '@/constants/passenger-types'
+import { submitConfirmOrder } from '@/api/confirm-order'
 import { queryMyPassengers } from '@/api/passenger'
 import {
   getSession,
@@ -192,6 +240,18 @@ const passengerChecks = ref([])
 const passengerLoading = ref(false)
 const tickets = ref([])
 const confirmVisible = ref(false)
+const confirmLoading = ref(false)
+const chooseSeatType = ref('0')
+const seatSelection = ref({})
+const selectableColumns = computed(
+  () => SEAT_COLUMNS[chooseSeatType.value] || [],
+)
+const seatRows = computed(() => tickets.value.length > 1 ? [1, 2] : [1])
+const selectedSeatKeys = computed(() => seatRows.value.flatMap(
+  (row) => selectableColumns.value
+    .map((column) => `${column}${row}`)
+    .filter((key) => seatSelection.value[key]),
+))
 const ticketColumns = [
   { title: '乘客', dataIndex: 'passengerName', key: 'passengerName', width: 100 },
   { title: '身份证', dataIndex: 'passengerIdCard', key: 'passengerIdCard', width: 220 },
@@ -212,6 +272,7 @@ watch(passengerChecks, (selectedPassengers) => {
     passengerName: passenger.name,
     passengerIdCard: passenger.idCard,
     seatTypeCode: seatTypes[0]?.code,
+    seat: null,
   }))
 })
 
@@ -248,7 +309,119 @@ function submitOrder() {
     notification.warning({ description: '一次最多只能购买 5 张车票' })
     return
   }
+
+  //1. 使用余票副本逐张预扣，避免前端校验修改页面上的真实余票。
+  if (!hasEnoughTickets()) {
+    return
+  }
+
+  //2. 只有同为一等座或同为二等座，且余票不少于20张时支持选座。
+  chooseSeatType.value = calculateChooseSeatType()
+
+  //3. 每次打开核对窗口都重新初始化，避免切换席别后残留隐藏座位。
+  initializeSeatSelection()
   confirmVisible.value = true
+}
+
+function hasEnoughTickets() {
+  //1. 复制席别余票，只在副本上执行预扣。
+  const remainingSeatTypes = seatTypes.map((seatType) => ({ ...seatType }))
+
+  //2. 逐张车票扣减对应席别，任一席别小于零即表示余票不足。
+  for (const ticket of tickets.value) {
+    const seatType = remainingSeatTypes.find(
+      (item) => item.code === ticket.seatTypeCode,
+    )
+    if (!seatType) {
+      notification.error({ description: '所选席别余票不足' })
+      return false
+    }
+    seatType.count -= 1
+    if (seatType.count < 0) {
+      notification.error({
+        description: `${seatType.desc}余票不足`,
+      })
+      return false
+    }
+  }
+  return true
+}
+
+function calculateChooseSeatType() {
+  //1. 提取并去重全部购票席别，混合席别不支持选座。
+  const selectedTypes = [...new Set(
+    tickets.value.map((ticket) => ticket.seatTypeCode),
+  )]
+  if (selectedTypes.length !== 1) {
+    return '0'
+  }
+
+  //2. 只有纯一等座或纯二等座支持选座。
+  const seatTypeCode = selectedTypes[0]
+  if (![SEAT_TYPES.YDZ.code, SEAT_TYPES.EDZ.code].includes(seatTypeCode)) {
+    return '0'
+  }
+
+  //3. 对应席别余票达到20张才开放选座。
+  const seatType = seatTypes.find((item) => item.code === seatTypeCode)
+  return seatType && seatType.count >= 20 ? seatTypeCode : '0'
+}
+
+function initializeSeatSelection() {
+  const selection = {}
+  for (const row of seatRows.value) {
+    for (const column of selectableColumns.value) {
+      selection[`${column}${row}`] = false
+    }
+  }
+  seatSelection.value = selection
+}
+
+async function confirmOrder() {
+  //1. 清空上一次确认结果，确保反复选座不会遗留旧座位。
+  tickets.value.forEach((ticket) => {
+    ticket.seat = null
+  })
+
+  //2. 完全不选座时由后端自动分配；主动选座时数量必须等于购票数。
+  const seatCount = selectedSeatKeys.value.length
+  if (seatCount > tickets.value.length) {
+    notification.error({ description: '所选座位数大于购票数' })
+    return
+  }
+  if (seatCount > 0 && seatCount < tickets.value.length) {
+    notification.error({ description: '所选座位数小于购票数' })
+    return
+  }
+
+  //3. 按界面从第一排到第二排、每排从左到右的顺序分配给乘客。
+  selectedSeatKeys.value.forEach((seat, index) => {
+    tickets.value[index].seat = seat
+  })
+
+  confirmLoading.value = true
+  try {
+    const data = await submitConfirmOrder({
+      date: dailyTrainTicket.date,
+      trainCode: dailyTrainTicket.trainCode,
+      start: dailyTrainTicket.start,
+      end: dailyTrainTicket.end,
+      dailyTrainTicketId: dailyTrainTicket.id,
+      tickets: tickets.value,
+    })
+    if (data.success) {
+      confirmVisible.value = false
+      notification.success({ description: '下单成功' })
+    } else {
+      notification.error({ description: data.message || '下单失败' })
+    }
+  } catch (error) {
+    notification.error({
+      description: error.response?.data?.message || '下单失败，请稍后再试',
+    })
+  } finally {
+    confirmLoading.value = false
+  }
 }
 
 function formatTime(value) {
@@ -446,6 +619,91 @@ onMounted(loadPassengers)
 
 .confirm-table :deep(.ant-table-cell) {
   overflow-wrap: anywhere;
+}
+
+.seat-picker {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid #dce3e1;
+}
+
+.seat-picker-heading,
+.seat-map-row {
+  display: flex;
+  align-items: center;
+}
+
+.seat-picker-heading {
+  margin-bottom: 14px;
+  justify-content: space-between;
+}
+
+.seat-picker-heading strong {
+  color: #17211f;
+  font-size: 16px;
+}
+
+.seat-picker-heading span,
+.seat-row-label {
+  color: #73807d;
+}
+
+.seat-map {
+  display: grid;
+  width: fit-content;
+  gap: 10px;
+}
+
+.seat-map-row {
+  gap: 8px;
+}
+
+.seat-row-label {
+  width: 34px;
+  flex: 0 0 34px;
+}
+
+.seat-choice {
+  display: block;
+  width: 42px;
+  height: 42px;
+  cursor: pointer;
+}
+
+.seat-choice.aisle-start {
+  margin-left: 18px;
+}
+
+.seat-choice input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.seat-choice span {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  border: 1px solid #aebbb8;
+  border-radius: 4px;
+  background: #fff;
+  color: #33413e;
+  font-weight: 600;
+  place-items: center;
+  transition: border-color 0.16s ease, background 0.16s ease,
+    color 0.16s ease;
+}
+
+.seat-choice input:checked + span {
+  border-color: #147d72;
+  background: #147d72;
+  color: #fff;
+}
+
+.seat-choice input:focus-visible + span {
+  outline: 2px solid #147d72;
+  outline-offset: 2px;
 }
 
 @media (max-width: 640px) {

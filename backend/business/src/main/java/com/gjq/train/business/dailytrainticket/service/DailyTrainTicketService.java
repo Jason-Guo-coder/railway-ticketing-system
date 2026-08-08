@@ -26,6 +26,13 @@ public interface DailyTrainTicketService
             DailyTrainTicketQueryReq request
     );
 
+    DailyTrainTicket selectByUnique(
+            LocalDate date,
+            String trainCode,
+            String start,
+            String end
+    );
+
     void generateByTrainCode(
             LocalDate date,
             String trainCode,

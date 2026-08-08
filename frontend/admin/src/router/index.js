@@ -82,6 +82,13 @@ const routes = [
         ),
       },
       {
+        path: 'business/confirm-order',
+        name: 'confirm-order',
+        component: () => import(
+          '@/views/main/business/confirm-order.vue'
+        ),
+      },
+      {
         path: 'batch/job',
         name: 'batch-job',
         component: () => import('@/views/main/batch/job.vue'),

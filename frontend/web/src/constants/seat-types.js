@@ -5,6 +5,11 @@ export const SEAT_TYPES = Object.freeze({
   YW: { code: '4', desc: '硬卧' },
 })
 
+export const SEAT_COLUMNS = Object.freeze({
+  [SEAT_TYPES.YDZ.code]: Object.freeze(['A', 'C', 'D', 'F']),
+  [SEAT_TYPES.EDZ.code]: Object.freeze(['A', 'B', 'C', 'D', 'F']),
+})
+
 export function buildAvailableSeatTypes(ticket = {}) {
   return Object.entries(SEAT_TYPES).flatMap(([type, seatType]) => {
     const key = type.toLowerCase()

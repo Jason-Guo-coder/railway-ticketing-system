@@ -96,6 +96,12 @@
             <span>余票管理</span>
           </router-link>
         </a-menu-item>
+        <a-menu-item key="/business/confirm-order">
+          <router-link to="/business/confirm-order">
+            <FileSearchOutlined />
+            <span>订单信息</span>
+          </router-link>
+        </a-menu-item>
       </a-sub-menu>
       <a-sub-menu key="batch">
         <template #title>
@@ -123,6 +129,7 @@ import {
   DatabaseOutlined,
   DollarCircleOutlined,
   EnvironmentOutlined,
+  FileSearchOutlined,
   HomeOutlined,
   InfoCircleOutlined,
   NodeIndexOutlined,

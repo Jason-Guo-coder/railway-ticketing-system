@@ -10,6 +10,7 @@ USE `railway_ticketing_system`;
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
+DROP TABLE IF EXISTS `confirm_order`;
 DROP TABLE IF EXISTS `daily_train_ticket`;
 DROP TABLE IF EXISTS `daily_train_seat`;
 DROP TABLE IF EXISTS `daily_train_carriage`;
@@ -241,5 +242,24 @@ CREATE TABLE `daily_train_ticket` (
   DEFAULT CHARACTER SET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci
   COMMENT = '余票信息';
+
+CREATE TABLE `confirm_order` (
+    `id` BIGINT NOT NULL COMMENT 'id',
+    `member_id` BIGINT NOT NULL COMMENT '会员id',
+    `date` DATE NOT NULL COMMENT '日期',
+    `train_code` VARCHAR(20) NOT NULL COMMENT '车次编号',
+    `start` VARCHAR(20) NOT NULL COMMENT '出发站',
+    `end` VARCHAR(20) NOT NULL COMMENT '到达站',
+    `daily_train_ticket_id` BIGINT NOT NULL COMMENT '余票ID',
+    `tickets` JSON NOT NULL COMMENT '车票',
+    `status` CHAR(1) NOT NULL COMMENT '订单状态|枚举[ConfirmOrderStatusEnum]',
+    `create_time` DATETIME(3) DEFAULT NULL COMMENT '新增时间',
+    `update_time` DATETIME(3) DEFAULT NULL COMMENT '修改时间',
+    PRIMARY KEY (`id`),
+    KEY `date_train_code_index` (`date`, `train_code`)
+) ENGINE = InnoDB
+  DEFAULT CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci
+  COMMENT = '确认订单';
 
 SET FOREIGN_KEY_CHECKS = 1;

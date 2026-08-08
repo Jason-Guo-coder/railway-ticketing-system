@@ -153,6 +153,25 @@ public class DailyTrainTicketServiceImpl
     }
 
     @Override
+    public DailyTrainTicket selectByUnique(
+            LocalDate date,
+            String trainCode,
+            String start,
+            String end
+    ) {
+        //1. 按日期、车次、出发站和到达站构造唯一键条件
+        LambdaQueryWrapper<DailyTrainTicket> queryWrapper =
+                new LambdaQueryWrapper<DailyTrainTicket>()
+                        .eq(DailyTrainTicket::getDate, date)
+                        .eq(DailyTrainTicket::getTrainCode, trainCode)
+                        .eq(DailyTrainTicket::getStart, start)
+                        .eq(DailyTrainTicket::getEnd, end);
+
+        //2. 返回该区间当前的真实余票记录
+        return dailyTrainTicketMapper.selectOne(queryWrapper);
+    }
+
+    @Override
     @Transactional
     public void generateByTrainCode(
             LocalDate date,
